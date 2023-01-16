@@ -1,0 +1,12 @@
+{
+  "compilerOptions": {
+    "target": "ESNext",
+    "module": "ESNext",
+    "moduleResolution": "NodeNext",
+    "sourceMap": true,
+    "esModuleInterop": true
+  },
+  "ts-node": {
+    "esm": true
+  },
+}

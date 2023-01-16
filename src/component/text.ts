@@ -1,7 +1,7 @@
-import Component from "./component";
+import {Component} from "./component.js";
 
-class Text extends Component {
-    protected text: string;
+export class Text extends Component {
+    protected text: string = "";
 
     constructor(text: string) {
         super();
@@ -41,13 +41,13 @@ class Text extends Component {
         return Text.COMPILER_CHARACTER + c;
     }
 
-    public static compile(s: string, c: string = null): string {
+    public static compile(s: string, c: string = null): string | null {
         if (s == null) return null;
         if (c == null) for (let i in Text.RESERVED_KEYWORDS) s = Text.compile(s, Text.RESERVED_KEYWORDS[i]);
         return s.replace(c, Text.quote(c));
     }
 
-    public static decompile(s: string, c: string = null): string {
+    public static decompile(s: string, c: string = null): string | null {
         if (s == null) return null;
         if (c == null) for (let i in Text.RESERVED_KEYWORDS) s = Text.decompile(s, Text.RESERVED_KEYWORDS[i]);
         return s.replace(Text.quote(s), c);

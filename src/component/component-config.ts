@@ -1,4 +1,4 @@
-import Component from "./component";
+import {Component} from "./component.js";
 
 export class ComponentConfig {
     public name: string;

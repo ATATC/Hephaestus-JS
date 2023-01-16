@@ -1,5 +1,6 @@
 {
   "name": "hephaestus-js",
+  "type": "module",
   "version": "1.0.0",
   "author": "ATATC",
   "description": "The JavaScript implementation of Hephaestus.",
@@ -20,7 +21,6 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "dependencies": {
-  },
-  "devDependencies": {
+    "ts-node": "^10.9.1"
   }
 }

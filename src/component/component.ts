@@ -1,11 +1,11 @@
-import Style from "../style";
-import {ComponentConfig} from "./component-config";
+import {Style} from "../style.js";
+import {ComponentConfig} from "./component-config.js";
 
-abstract class Component {
+export abstract class Component {
     protected style: Style = new Style();
     protected config: ComponentConfig = new ComponentConfig();
 
-    constructor() {
+    public constructor() {
     }
 
     public setConfig(config: ComponentConfig): void {
@@ -26,5 +26,3 @@ abstract class Component {
 
     public abstract expr(): string;
 }
-
-export default Component;
