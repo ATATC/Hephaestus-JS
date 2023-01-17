@@ -2,5 +2,5 @@
 /build
 *.iml
 /node_modules
-*.js.map
 test.js
+test.js.map
