@@ -20,11 +20,20 @@ export class Config {
         return this.parserMap.get(tagName);
     }
 
-    public putAttributeMapping(fieldName: string, attributeName: string): void {
-        this.attributeMappingMap.set(fieldName, attributeName);
+    public putAttributeMapping(prefix: string, fieldName: string, attributeName: string): void {
+        this.attributeMappingMap.set(prefix + "." + fieldName, attributeName);
     }
 
-    public getAttributeName(fieldName: string): string {
-        return this.attributeMappingMap.get(fieldName);
+    public getAttributeName(prefix: string, fieldName: string): string {
+        return this.attributeMappingMap.get(prefix + "." + fieldName);
+    }
+
+    public getAttributes(prefix: string): [string, string][] {
+        const attributes = [];
+        for (let [index, attrName] of this.attributeMappingMap.entries()) {
+            const [pre, field] = index.split(".");
+            if (pre == prefix) attributes.push([field, attrName]);
+        }
+        return attributes;
     }
 }

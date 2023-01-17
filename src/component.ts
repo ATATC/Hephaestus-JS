@@ -117,13 +117,13 @@ export class Text extends Component {
 
     public static compile(s: string, c: string = null): string | null {
         if (s == null) return null;
-        if (c == null) for (let i in Text.RESERVED_KEYWORDS) s = Text.compile(s, Text.RESERVED_KEYWORDS[i]);
+        if (c == null) for (let k of Text.RESERVED_KEYWORDS) s = Text.compile(s, k);
         return s.replace(c, Text.quote(c));
     }
 
     public static decompile(s: string, c: string = null): string | null {
         if (s == null) return null;
-        if (c == null) for (let i in Text.RESERVED_KEYWORDS) s = Text.decompile(s, Text.RESERVED_KEYWORDS[i]);
+        if (c == null) for (let k of Text.RESERVED_KEYWORDS) s = Text.decompile(s, k);
         return s.replace(Text.quote(s), c);
     }
 
@@ -200,7 +200,7 @@ export class MultiComponent extends Component implements Iterable<Component> {
     }
 
     public forEach(action: (component: Component, depth: number) => boolean, depth: number = 0) {
-        for (let i in this.components) if (!action(this.components[i], depth)) break;
+        for (let component of this.components) if (!action(component, depth)) break;
     }
 
     public expr(): string {
@@ -236,7 +236,7 @@ export class MultiComponent extends Component implements Iterable<Component> {
     }
 
     public containsAll(c: Component[]): boolean {
-        for (let i in c) if (!this.components.includes(c[i])) return false;
+        for (let component of c) if (!this.components.includes(component)) return false;
         return true;
     }
 
@@ -266,7 +266,7 @@ export abstract class WrapperComponent extends Component {
     }
 
     public getChildren(): MultiComponent {
-        return this.children;
+        return this.children == null ? new MultiComponent() : this.children;    // FixMe: dont know why
     }
 
     public appendChild(child: Component): void {
@@ -314,7 +314,7 @@ export class Skeleton extends WrapperComponent {
     protected name: string;
 
     @Attribute()
-    protected attrComponent: Component;
+    protected component: Component;
 
     protected parent: Skeleton;
 
@@ -332,11 +332,11 @@ export class Skeleton extends WrapperComponent {
     }
 
     public setComponent(component: Component): void {
-        this.attrComponent = component;
+        this.component = component;
     }
 
     public getComponent(): Component {
-        return this.attrComponent;
+        return this.component;
     }
 
     public setParent(parent: Skeleton): void {

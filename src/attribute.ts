@@ -1,21 +1,18 @@
 import {Component, Text} from "./component.js";
 import {parseExpr} from "./hephaestus.js";
+import {Config} from "./config.js";
 
-// todo
 export function Attribute(name: string = ""): Function {
-    return function (target: any, propertyKey: string, descriptor: PropertyDescriptor) {
-        console.log(target);
-        console.log(propertyKey);
-        console.log(descriptor);
+    return function (target: any, propertyKey: string) {
+        Config.getInstance().putAttributeMapping(target.constructor.name, propertyKey, name == "" ? propertyKey : name);
     }
 }
 
 export function extractAttributes(component: Component): string {
-    const fields = Object.keys(component);
     let attributes = "(";
-    for (let i in fields) {
-        const field = fields[i];
-        if (field.startsWith("attr")) attributes += field.substring(4).toLowerCase() + "=" + Reflect.get(component, field) + ";";
+    for (let field of Object.keys(component)) {
+        const attributeName = Config.getInstance().getAttributeName(Object.getPrototypeOf(component).constructor.name, field);
+        if (attributeName != null) attributes += attributeName + "=" + Reflect.get(component, field) + ";";
     }
     if (attributes.length == 1) return "";
     return attributes + ")";
@@ -48,13 +45,9 @@ export function getAttribute(attributesExpr: string, attributeName: string): str
     return attributesExpr.substring(startIndex, endIndex);
 }
 
-// Fixme: fields do not exist when it's not set.
 export function injectAttributes(component: Component, attributesExpr: string): void {
-    const fields = Object.keys(Object.getPrototypeOf(component));
-    for (let i in fields) {
-        const field = fields[i];
-        if (!field.startsWith("attr")) continue;
-        const val = getAttribute(attributesExpr, field.substring(4).toLowerCase());
+    for (let [field, attributeName] of Config.getInstance().getAttributes(Object.getPrototypeOf(component).constructor.name)) {
+        const val = getAttribute(attributesExpr, attributeName);
         if (val == null) continue;
         injectField(field, component, val);
     }
