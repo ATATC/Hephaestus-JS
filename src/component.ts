@@ -266,7 +266,7 @@ export abstract class WrapperComponent extends Component {
     }
 
     public getChildren(): MultiComponent {
-        return this.children == null ? new MultiComponent() : this.children;    // FixMe: dont know why
+        return this.children;
     }
 
     public appendChild(child: Component): void {
