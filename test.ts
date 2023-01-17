@@ -1,6 +1,6 @@
-import {MultiComponent} from "./src/component.js";
+import {Skeleton, Text} from "./src/component.js";
 
-console.log("A");
-let comp = new MultiComponent();
-console.log(Reflect.has(comp, "PARSER"));
-console.log(comp.getTagName());
+const skeleton = new Skeleton("test skeleton");
+skeleton.setComponent(new Text("test"));
+console.log(new Text("").getTagName());
+console.log(skeleton.expr());

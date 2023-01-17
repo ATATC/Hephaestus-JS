@@ -1,8 +1,9 @@
 import {Style} from "./style.js";
 import {BadFormat} from "./exception.js";
 import {parseExpr} from "./hephaestus.js";
+import {extractAttributes} from "./attribute.js";
 
-class ComponentConfig {
+class ComponentConfigRecord {
     protected readonly _tagName: string;
 
     constructor(tagName: string = "undefined") {
@@ -14,20 +15,24 @@ class ComponentConfig {
     }
 }
 
+export function ComponentConfig(tagName: string): Function {
+    return function (constructor: Function) {
+        constructor.prototype.config = new ComponentConfigRecord(tagName);
+    };
+}
+
 // todo: missing forEach()
 export abstract class Component {
-    private readonly config: ComponentConfig;
     protected style: Style = new Style();
 
-    protected constructor(config: ComponentConfig = new ComponentConfig()) {
-        this.config = config;
+    protected constructor() {
     }
 
-    public getConfig(): ComponentConfig {
-        return this.config;
+    public getConfig(): ComponentConfigRecord {
+        return Object.getPrototypeOf(this).config;
     }
 
-    public getTagName(): string | null {
+    public getTagName(): string {
         const config = this.getConfig();
         if (config == null) return "undefined";
         return config.tagName();
@@ -126,7 +131,7 @@ export class Text extends Component {
         return Text.startsWith(s, start) && Text.endsWith(s, end);
     }
 
-    public static pairBrackets(s: string, open: string, close: string, requiredDepth: number = 0) {
+    public static pairBrackets(s: string, open: string, close: string, requiredDepth: number = 0): [number, number] {
         let depth = 0;
         let startIndex = -1;
         for (let i = 0; i < s.length; i++) {
@@ -193,11 +198,11 @@ export class MultiComponent extends Component implements Iterable<Component> {
         return this.components[Symbol.iterator]();
     }
 
-    public add(component: Component) {
-        return this.components.push(component);
+    public add(component: Component): void {
+        this.components.push(component);
     }
 
-    public remove(index: number) {
+    public remove(index: number): void {
         this.components.splice(index, 1);
     }
 
@@ -206,11 +211,11 @@ export class MultiComponent extends Component implements Iterable<Component> {
         return true;
     }
 
-    public addAll(c: Component[]) {
+    public addAll(c: Component[]): void {
         this.components.push(...c);
     }
 
-    public clear() {
+    public clear(): void {
         this.components = [];
     }
 
@@ -220,14 +225,14 @@ export class MultiComponent extends Component implements Iterable<Component> {
 }
 
 export abstract class WrapperComponent extends Component {
-    protected children: MultiComponent = new MultiComponent();
+    protected children: MultiComponent;
 
-    public constructor(config: ComponentConfig, children: MultiComponent = new MultiComponent()) {
-        super(config);
+    protected constructor(children: MultiComponent = new MultiComponent()) {
+        super();
         this.setChildren(children);
     }
 
-    public setChildren(children: MultiComponent) {
+    public setChildren(children: MultiComponent): void {
         this.children = children;
     }
 
@@ -235,7 +240,7 @@ export abstract class WrapperComponent extends Component {
         return this.children;
     }
 
-    public appendChild(child: Component) {
+    public appendChild(child: Component): void {
         this.children.add(child);
     }
 
@@ -243,12 +248,82 @@ export abstract class WrapperComponent extends Component {
         return this.getChildren().get(index);
     }
 
-    public removeChild(index: number) {
+    public removeChild(index: number): void {
         this.children.remove(index);
     }
 
-    // todo: missing attributes extraction
     public expr(): string {
-        return "{" + this.getTagName() + ":" + this.getChildren().expr() + "}";
+        return "{" + this.getTagName() + ":" + extractAttributes(this) + this.getChildren().expr() + "}";
+    }
+}
+
+export class Skeleton extends WrapperComponent {
+    protected name: string;
+
+    protected attrComponent: Component;
+
+    protected parent: Skeleton;
+
+    public constructor(name: string = null) {
+        super();
+        this.setName(name);
+    }
+
+    public setName(name: string): void {
+        this.name = name;
+    }
+
+    public getName(): string {
+        return this.name;
+    }
+
+    public setComponent(component: Component): void {
+        this.attrComponent = component;
+    }
+
+    public getComponent(): Component {
+        return this.attrComponent;
+    }
+
+    public setParent(parent: Skeleton): void {
+        this.parent = parent;
+    }
+
+    public getParent(): Skeleton {
+        return this.parent;
+    }
+
+    public appendChild(child: Component) {
+        if (child instanceof Skeleton) {
+            super.appendChild(child);
+            child.setParent(this);
+        } else throw new Error("UnsupportedOperationException");
+    }
+
+    public expr(): string {
+        const expr = "<" + Text.compile(this.getName()) + ":" + extractAttributes(this) + this.getChildren().expr();
+        return (expr.endsWith(":") ? expr.substring(0, expr.length - 1) : expr) + ">";
+    }
+}
+
+@ComponentConfig("md")
+export class MDBlock extends Component {
+    protected markdown: string;
+
+    public constructor(markdown: string = null) {
+        super();
+        this.setMarkdown(markdown);
+    }
+
+    public setMarkdown(markdown: string): void {
+        this.markdown = markdown;
+    }
+
+    public getMarkdown(): string {
+        return this.markdown;
+    }
+
+    public expr(): string {
+        return "{" + this.getTagName() + ":" + this.getMarkdown() + "}";
     }
 }
