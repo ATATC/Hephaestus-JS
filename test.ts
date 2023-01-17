@@ -1,5 +1,5 @@
-import {Skeleton, Text} from "./src/component.js";
-import {parseExpr} from "./src/hephaestus.js";
+import {Skeleton, Text} from "./component.js";
+import {parseExpr} from "./hephaestus.js";
 
 const skeleton = new Skeleton("test skeleton");
 skeleton.setComponent(new Text("test"));
