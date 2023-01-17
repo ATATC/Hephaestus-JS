@@ -1,7 +1,7 @@
 import {Style} from "./style.js";
 import {BadFormat, MissingFieldException} from "./exception.js";
 import {parseExpr} from "./hephaestus.js";
-import {extractAttributes, injectAttributes, searchAttributesInExpr} from "./attribute.js";
+import {Attribute, extractAttributes, injectAttributes, searchAttributesInExpr} from "./attribute.js";
 import {Config} from "./config.js";
 
 class ComponentConfigRecord {
@@ -17,7 +17,7 @@ class ComponentConfigRecord {
 }
 
 export function ComponentConfig(tagName: string): Function {
-    return function (constructor: Function) {
+    return function (constructor: Function): void {
         constructor.prototype.config = new ComponentConfigRecord(tagName);
         if (!Reflect.has(constructor, "PARSER")) throw new MissingFieldException(constructor, "PARSER");
         Config.getInstance().putParser(tagName, Reflect.get(constructor, "PARSER"));
@@ -54,6 +54,9 @@ export abstract class Component {
 
     public abstract expr(): string;
 }
+Component.prototype.toString = function (): string {
+    return this.expr();
+};
 
 export class UnsupportedComponent extends Component {
     public tagName: string = "undefined";
@@ -299,6 +302,7 @@ export abstract class WrapperComponent extends Component {
             }
             const bodyComponent = parseExpr(bodyExpr);
             if (bodyComponent != null) component.setChildren(bodyComponent instanceof  MultiComponent ? bodyComponent : new MultiComponent(bodyComponent));
+            else component.setChildren(new MultiComponent());
             return component;
         };
     }
@@ -309,6 +313,7 @@ export class Skeleton extends WrapperComponent {
 
     protected name: string;
 
+    @Attribute()
     protected attrComponent: Component;
 
     protected parent: Skeleton;

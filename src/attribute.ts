@@ -1,6 +1,15 @@
 import {Component, Text} from "./component.js";
 import {parseExpr} from "./hephaestus.js";
 
+// todo
+export function Attribute(name: string = ""): Function {
+    return function (target: any, propertyKey: string, descriptor: PropertyDescriptor) {
+        console.log(target);
+        console.log(propertyKey);
+        console.log(descriptor);
+    }
+}
+
 export function extractAttributes(component: Component): string {
     const fields = Object.keys(component);
     let attributes = "(";
@@ -39,8 +48,9 @@ export function getAttribute(attributesExpr: string, attributeName: string): str
     return attributesExpr.substring(startIndex, endIndex);
 }
 
+// Fixme: fields do not exist when it's not set.
 export function injectAttributes(component: Component, attributesExpr: string): void {
-    const fields = Object.keys(component);
+    const fields = Object.keys(Object.getPrototypeOf(component));
     for (let i in fields) {
         const field = fields[i];
         if (!field.startsWith("attr")) continue;
