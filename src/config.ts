@@ -1,22 +1,21 @@
-import {Parser} from "./parser.js";
 import {Component} from "./component.js";
 
-class Config {
+export class Config {
     private static readonly instance: Config = new Config();
     public static getInstance(): Config {
         return Config.instance;
     }
 
-    private readonly parserMap: Map<String, Parser<any>> = new Map<String, Parser<Component>>();
+    private readonly parserMap: Map<String, (expr) => Component> = new Map<String, (expr) => Component>();
 
     private constructor() {
     }
 
-    public putParser(tagName: string, parser: Parser<any>): void {
+    public putParser(tagName: string, parser: (expr) => Component): void {
         this.parserMap.set(tagName, parser);
     }
 
-    public getParser(tagName: string): Parser<any> {
+    public getParser(tagName: string): (expr) => Component {
         return this.parserMap.get(tagName);
     }
 }

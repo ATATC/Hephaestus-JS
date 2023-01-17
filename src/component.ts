@@ -1,7 +1,8 @@
 import {Style} from "./style.js";
-import {BadFormat} from "./exception.js";
+import {BadFormat, MissingFieldException} from "./exception.js";
 import {parseExpr} from "./hephaestus.js";
 import {extractAttributes} from "./attribute.js";
+import {Config} from "./config.js";
 
 class ComponentConfigRecord {
     protected readonly _tagName: string;
@@ -18,6 +19,8 @@ class ComponentConfigRecord {
 export function ComponentConfig(tagName: string): Function {
     return function (constructor: Function) {
         constructor.prototype.config = new ComponentConfigRecord(tagName);
+        if (constructor.prototype.PARSER == null) throw new MissingFieldException(constructor.prototype, "PARSER");
+        Config.getInstance().putParser(tagName, constructor.prototype.PARSER);
     };
 }
 
@@ -46,10 +49,16 @@ export abstract class Component {
         return this.style;
     }
 
+    public forEach(action: (component: Component, depth: number) => boolean, depth: number = 0): void {
+        action(this, depth);
+    }
+
     public abstract expr(): string;
 }
 
 export class Text extends Component {
+    public static PARSER: (expr) => Text = expr => new Text(Text.decompile(expr));
+
     protected text: string;
 
     constructor(text: string) {
@@ -174,6 +183,10 @@ export class MultiComponent extends Component implements Iterable<Component> {
         this.components = components;
     }
 
+    public forEach(action: (component: Component, depth: number) => boolean, depth: number = 0) {
+        for (let i in this.components) if (!action(this.components[i], depth)) break;
+    }
+
     public expr(): string {
         if (this.components.length == 0) return "";
         if (this.components.length == 1) return this.components.at(0).expr();
@@ -250,6 +263,11 @@ export abstract class WrapperComponent extends Component {
 
     public removeChild(index: number): void {
         this.children.remove(index);
+    }
+
+    public forEach(action: (component: Component, depth: number) => boolean, depth: number = 0) {
+        super.forEach(action, depth);
+        this.getChildren().forEach(action, depth + 1);
     }
 
     public expr(): string {
