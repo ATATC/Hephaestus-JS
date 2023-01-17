@@ -1,7 +1,7 @@
 import {Style} from "./style.js";
 import {BadFormat, MissingFieldException} from "./exception.js";
 import {parseExpr} from "./hephaestus.js";
-import {extractAttributes} from "./attribute.js";
+import {extractAttributes, injectAttributes, searchAttributesInExpr} from "./attribute.js";
 import {Config} from "./config.js";
 
 class ComponentConfigRecord {
@@ -19,12 +19,11 @@ class ComponentConfigRecord {
 export function ComponentConfig(tagName: string): Function {
     return function (constructor: Function) {
         constructor.prototype.config = new ComponentConfigRecord(tagName);
-        if (constructor.prototype.PARSER == null) throw new MissingFieldException(constructor.prototype, "PARSER");
-        Config.getInstance().putParser(tagName, constructor.prototype.PARSER);
+        if (!Reflect.has(constructor, "PARSER")) throw new MissingFieldException(constructor, "PARSER");
+        Config.getInstance().putParser(tagName, Reflect.get(constructor, "PARSER"));
     };
 }
 
-// todo: missing forEach()
 export abstract class Component {
     protected style: Style = new Style();
 
@@ -54,6 +53,20 @@ export abstract class Component {
     }
 
     public abstract expr(): string;
+}
+
+export class UnsupportedComponent extends Component {
+    public tagName: string = "undefined";
+    public fullExpr: string = "";
+    public inner: string = "";
+
+    public constructor() {
+        super();
+    }
+
+    public expr(): string {
+        return this.fullExpr;
+    }
 }
 
 export class Text extends Component {
@@ -273,9 +286,27 @@ export abstract class WrapperComponent extends Component {
     public expr(): string {
         return "{" + this.getTagName() + ":" + extractAttributes(this) + this.getChildren().expr() + "}";
     }
+
+    public static makeParser <C extends WrapperComponent> (constructor: Function): (expr) => C {
+        return expr => {
+            const component = Object.create(constructor.prototype);
+            const attributesAndBody = searchAttributesInExpr(expr);
+            let attributesExpr, bodyExpr;
+            if (attributesAndBody == null) bodyExpr = expr;
+            else {
+                [attributesExpr, bodyExpr] = attributesAndBody;
+                injectAttributes(component, attributesExpr);
+            }
+            const bodyComponent = parseExpr(bodyExpr);
+            if (bodyComponent != null) component.setChildren(bodyComponent instanceof  MultiComponent ? bodyComponent : new MultiComponent(bodyComponent));
+            return component;
+        };
+    }
 }
 
 export class Skeleton extends WrapperComponent {
+    public static PARSER: (expr) => Skeleton = WrapperComponent.makeParser(Skeleton);
+
     protected name: string;
 
     protected attrComponent: Component;
@@ -326,6 +357,8 @@ export class Skeleton extends WrapperComponent {
 
 @ComponentConfig("md")
 export class MDBlock extends Component {
+    public static PARSER: (expr) => MDBlock = expr => new MDBlock(expr);
+
     protected markdown: string;
 
     public constructor(markdown: string = null) {
@@ -343,5 +376,29 @@ export class MDBlock extends Component {
 
     public expr(): string {
         return "{" + this.getTagName() + ":" + this.getMarkdown() + "}";
+    }
+}
+
+@ComponentConfig("html")
+export class HTMLBlock extends Component {
+    public static PARSER: (expr) => HTMLBlock = expr => new HTMLBlock(expr);
+
+    protected html: string;
+
+    public constructor(html: string = null) {
+        super();
+        this.setHTML(html);
+    }
+
+    public setHTML(html: string): void {
+        this.html = html;
+    }
+
+    public getHTML(): string {
+        return this.html;
+    }
+
+    public expr(): string {
+        return "{" + this.getTagName() + ":" + this.getHTML() + "}";
     }
 }

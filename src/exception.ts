@@ -19,7 +19,7 @@ export class ComponentNotClosed extends BadFormat {
 }
 
 export class MissingFieldException extends HephaestusRuntimeException {
-    public constructor(prototype: any, fieldName: string) {
-        super("Missing field " + fieldName + " from " + prototype.name + ".");
+    public constructor(constructor: Function, fieldName: string) {
+        super("Missing field " + fieldName + " in " + constructor.prototype + ".");
     }
 }
