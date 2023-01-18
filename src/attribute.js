@@ -3,6 +3,7 @@ import { parseExpr } from "./hephaestus.js";
 import { Config } from "./config.js";
 export function Attribute(name = "") {
     return function (target, propertyKey) {
+        console.log(Config);
         Config.getInstance().putAttributeMapping(target.constructor.name, propertyKey, name == "" ? propertyKey : name);
     };
 }
