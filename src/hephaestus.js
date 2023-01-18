@@ -2,7 +2,7 @@ import { MultiComponent, Skeleton, Text, UnsupportedComponent } from "./componen
 import { ComponentNotClosed } from "./exception.js";
 import { Config } from "./config.js";
 export function parseExpr(expr) {
-    if (expr == "")
+    if (expr == null || expr == "")
         return null;
     if (Text.wrappedBy(expr, "[", "]"))
         return MultiComponent.PARSER(expr.substring(1, expr.length - 1));

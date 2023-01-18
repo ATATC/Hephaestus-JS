@@ -3,7 +3,7 @@ import {ComponentNotClosed} from "./exception.js";
 import {Config} from "./config.js";
 
 export function parseExpr(expr: string): Component {
-    if (expr == "") return null;
+    if (expr == null || expr == "") return null;
     if (Text.wrappedBy(expr, "[", "]")) return MultiComponent.PARSER(expr.substring(1, expr.length - 1));
     const temp = new UnsupportedComponent();
     temp.fullExpr = expr;
