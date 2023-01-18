@@ -250,6 +250,16 @@ export class MultiComponent extends Component implements Iterable<Component> {
     public get(index: number): Component {
         return this.components[index];
     }
+
+    /**
+     * Not original.
+     * @param callbackfn callback function
+     */
+    public map <T> (callbackfn: (component: Component, index: number, multiComponent: MultiComponent) => T): T[] {
+        const arr = [];
+        for (let i in this.components) arr.push(callbackfn(this.components[i], Number(i), this));
+        return arr;
+    }
 }
 
 export abstract class WrapperComponent extends Component {

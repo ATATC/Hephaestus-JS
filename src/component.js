@@ -235,6 +235,16 @@ export class MultiComponent extends Component {
     get(index) {
         return this.components[index];
     }
+    /**
+     * Not original.
+     * @param callbackfn callback function
+     */
+    map(callbackfn) {
+        const arr = [];
+        for (let i in this.components)
+            arr.push(callbackfn(this.components[i], Number(i), this));
+        return arr;
+    }
 }
 export class WrapperComponent extends Component {
     children;
