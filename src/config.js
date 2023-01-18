@@ -1,13 +1,11 @@
 // FixMe: A major bug: this class is not initialized yet when the Attribute decorators are being called, causing null pointer exceptions.
-export class Config {
-    static instance = new Config();
-    static getInstance() {
-        return Config.instance;
-    }
+class _Config {
     parserMap = new Map();
     attributeMappingMap = new Map();
     constructor() {
-        console.log("A");
+    }
+    getInstance() {
+        return this;
     }
     putParser(tagName, parser) {
         this.parserMap.set(tagName, parser);
@@ -31,4 +29,5 @@ export class Config {
         return attributes;
     }
 }
+export const Config = new _Config();
 //# sourceMappingURL=config.js.map
