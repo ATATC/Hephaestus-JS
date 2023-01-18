@@ -1,7 +1,7 @@
 {
   "name": "@atatctech/hephaestus-js",
   "type": "module",
-  "version": "1.0.1b2",
+  "version": "1.0.1b3",
   "author": "ATATC",
   "description": "The JavaScript implementation of Hephaestus.",
   "keywords": [
