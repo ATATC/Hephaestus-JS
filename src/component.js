@@ -7,7 +7,7 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
-var MDBlock_1, HTMLBlock_1;
+var HTMLBlock_1, MDBlock_1;
 import { Style } from "./style.js";
 import { BadFormat, MissingFieldException } from "./exception.js";
 import { parseExpr } from "./hephaestus.js";
@@ -150,10 +150,9 @@ export class Text extends Component {
         let depth = 0;
         let startIndex = -1;
         for (let i = 0; i < s.length; i++) {
-            const bit = s.charAt(i);
-            if (bit == open && depth++ == requiredDepth)
+            if (Text.charAtEquals(s, i, open) && depth++ == requiredDepth)
                 startIndex = i;
-            else if (bit == close && --depth == requiredDepth)
+            else if (Text.charAtEquals(s, i, close) && --depth == requiredDepth)
                 return [startIndex, i];
         }
         return [startIndex, -1];
@@ -329,30 +328,8 @@ __decorate([
     Attribute(),
     __metadata("design:type", Component)
 ], Skeleton.prototype, "component", void 0);
-let MDBlock = MDBlock_1 = class MDBlock extends Component {
-    static PARSER = expr => new MDBlock_1(expr);
-    markdown;
-    constructor(markdown = null) {
-        super();
-        this.setMarkdown(markdown);
-    }
-    setMarkdown(markdown) {
-        this.markdown = markdown;
-    }
-    getMarkdown() {
-        return this.markdown;
-    }
-    expr() {
-        return "{" + this.getTagName() + ":" + this.getMarkdown() + "}";
-    }
-};
-MDBlock = MDBlock_1 = __decorate([
-    ComponentConfig("md"),
-    __metadata("design:paramtypes", [String])
-], MDBlock);
-export { MDBlock };
 let HTMLBlock = HTMLBlock_1 = class HTMLBlock extends Component {
-    static PARSER = expr => new HTMLBlock_1(expr);
+    static PARSER = expr => new HTMLBlock_1(Text.decompile(expr));
     html;
     constructor(html = null) {
         super();
@@ -365,7 +342,7 @@ let HTMLBlock = HTMLBlock_1 = class HTMLBlock extends Component {
         return this.html;
     }
     expr() {
-        return "{" + this.getTagName() + ":" + this.getHTML() + "}";
+        return "{" + this.getTagName() + ":" + Text.compile(this.getHTML()) + "}";
     }
 };
 HTMLBlock = HTMLBlock_1 = __decorate([
@@ -373,4 +350,26 @@ HTMLBlock = HTMLBlock_1 = __decorate([
     __metadata("design:paramtypes", [String])
 ], HTMLBlock);
 export { HTMLBlock };
+let MDBlock = MDBlock_1 = class MDBlock extends Component {
+    static PARSER = expr => new MDBlock_1(Text.decompile(expr));
+    markdown;
+    constructor(markdown = null) {
+        super();
+        this.setMarkdown(markdown);
+    }
+    setMarkdown(markdown) {
+        this.markdown = markdown;
+    }
+    getMarkdown() {
+        return this.markdown;
+    }
+    expr() {
+        return "{" + this.getTagName() + ":" + Text.compile(this.getMarkdown()) + "}";
+    }
+};
+MDBlock = MDBlock_1 = __decorate([
+    ComponentConfig("md"),
+    __metadata("design:paramtypes", [String])
+], MDBlock);
+export { MDBlock };
 //# sourceMappingURL=component.js.map

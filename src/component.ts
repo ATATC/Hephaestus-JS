@@ -160,9 +160,8 @@ export class Text extends Component {
         let depth = 0;
         let startIndex = -1;
         for (let i = 0; i < s.length; i++) {
-            const bit = s.charAt(i);
-            if (bit == open && depth++ == requiredDepth) startIndex = i;
-            else if (bit == close && --depth == requiredDepth) return [startIndex, i];
+            if (Text.charAtEquals(s, i, open) && depth++ == requiredDepth) startIndex = i;
+            else if (Text.charAtEquals(s, i, close) && --depth == requiredDepth) return [startIndex, i];
         }
         return [startIndex, -1];
     }
@@ -360,33 +359,9 @@ export class Skeleton extends WrapperComponent {
     }
 }
 
-@ComponentConfig("md")
-export class MDBlock extends Component {
-    public static PARSER: (expr) => MDBlock = expr => new MDBlock(expr);
-
-    protected markdown: string;
-
-    public constructor(markdown: string = null) {
-        super();
-        this.setMarkdown(markdown);
-    }
-
-    public setMarkdown(markdown: string): void {
-        this.markdown = markdown;
-    }
-
-    public getMarkdown(): string {
-        return this.markdown;
-    }
-
-    public expr(): string {
-        return "{" + this.getTagName() + ":" + this.getMarkdown() + "}";
-    }
-}
-
 @ComponentConfig("html")
 export class HTMLBlock extends Component {
-    public static PARSER: (expr) => HTMLBlock = expr => new HTMLBlock(expr);
+    public static PARSER: (expr) => HTMLBlock = expr => new HTMLBlock(Text.decompile(expr));
 
     protected html: string;
 
@@ -404,6 +379,30 @@ export class HTMLBlock extends Component {
     }
 
     public expr(): string {
-        return "{" + this.getTagName() + ":" + this.getHTML() + "}";
+        return "{" + this.getTagName() + ":" + Text.compile(this.getHTML()) + "}";
+    }
+}
+
+@ComponentConfig("md")
+export class MDBlock extends Component {
+    public static PARSER: (expr) => MDBlock = expr => new MDBlock(Text.decompile(expr));
+
+    protected markdown: string;
+
+    public constructor(markdown: string = null) {
+        super();
+        this.setMarkdown(markdown);
+    }
+
+    public setMarkdown(markdown: string): void {
+        this.markdown = markdown;
+    }
+
+    public getMarkdown(): string {
+        return this.markdown;
+    }
+
+    public expr(): string {
+        return "{" + this.getTagName() + ":" + Text.compile(this.getMarkdown()) + "}";
     }
 }
