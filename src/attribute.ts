@@ -26,11 +26,13 @@ export function searchAttributesInExpr(expr: string): [string, string] {
 }
 
 export function injectField(field: string, instance: object, value: string): void {
-    const t = Reflect.getOwnPropertyDescriptor(instance, field);
-    if (t == String) Reflect.set(instance, field, value);
-    else if (t == Number) Reflect.set(instance, field, Number(value));
-    else if (t == Component) Reflect.set(instance, field, parseExpr(value));
-    else Reflect.set(instance, field, Object(value));
+    // const t = Reflect.get(instance, field);
+    // if (t == String) Reflect.set(instance, field, value);
+    // else if (t == Number) Reflect.set(instance, field, Number(value));
+    // else if (t == Component) Reflect.set(instance, field, parseExpr(value));
+    // else Reflect.set(instance, field, Object(value));
+    // FixMe: This works for now, but it is extremely bad as it assumes every attribute to be a component type.
+    Reflect.set(instance, field, parseExpr(value));
 }
 
 export function getAttribute(attributesExpr: string, attributeName: string): string {

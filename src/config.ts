@@ -1,6 +1,5 @@
 import {Component} from "./component.js";
 
-// FixMe: A major bug: this class is not initialized yet when the Attribute decorators are being called, causing null pointer exceptions.
 export class Config {
     private static readonly instance: Config = new Config();
 

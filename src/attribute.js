@@ -1,4 +1,4 @@
-import { Component, Text } from "./component.js";
+import { Text } from "./component.js";
 import { parseExpr } from "./hephaestus.js";
 import { Config } from "./config.js";
 export function Attribute(name = "") {
@@ -26,15 +26,13 @@ export function searchAttributesInExpr(expr) {
     return [expr.substring(0, endIndex), expr.substring(endIndex)];
 }
 export function injectField(field, instance, value) {
-    const t = Reflect.getOwnPropertyDescriptor(instance, field);
-    if (t == String)
-        Reflect.set(instance, field, value);
-    else if (t == Number)
-        Reflect.set(instance, field, Number(value));
-    else if (t == Component)
-        Reflect.set(instance, field, parseExpr(value));
-    else
-        Reflect.set(instance, field, Object(value));
+    // const t = Reflect.get(instance, field);
+    // if (t == String) Reflect.set(instance, field, value);
+    // else if (t == Number) Reflect.set(instance, field, Number(value));
+    // else if (t == Component) Reflect.set(instance, field, parseExpr(value));
+    // else Reflect.set(instance, field, Object(value));
+    // FixMe: This works for now, but it is extremely bad as it assumes every attribute to be a component type.
+    Reflect.set(instance, field, parseExpr(value));
 }
 export function getAttribute(attributesExpr, attributeName) {
     if (attributesExpr.length < attributeName.length)
