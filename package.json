@@ -1,7 +1,7 @@
 {
   "name": "@atatctech/hephaestus-js",
   "type": "module",
-  "version": "1.0.1b6",
+  "version": "1.0.1b7",
   "author": "ATATC",
   "description": "The JavaScript implementation of Hephaestus.",
   "keywords": [
@@ -21,6 +21,9 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "dependencies": {
+    "reflect-metadata": "^0.1.13"
+  },
+  "devDependencies": {
     "ts-node": "^10.9.1"
   },
   "publishConfig": {
