@@ -1,3 +1,4 @@
+// FixMe: A major bug: this class is not initialized yet when the Attribute decorators are being called, causing null pointer exceptions.
 export class Config {
     static instance = new Config();
     static getInstance() {
@@ -6,6 +7,7 @@ export class Config {
     parserMap = new Map();
     attributeMappingMap = new Map();
     constructor() {
+        console.log("A");
     }
     putParser(tagName, parser) {
         this.parserMap.set(tagName, parser);

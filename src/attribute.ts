@@ -4,7 +4,6 @@ import {Config} from "./config.js";
 
 export function Attribute(name: string = ""): Function {
     return function (target: any, propertyKey: string) {
-        console.log(Config);
         Config.getInstance().putAttributeMapping(target.constructor.name, propertyKey, name == "" ? propertyKey : name);
     }
 }

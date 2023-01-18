@@ -1,5 +1,6 @@
 import {Component} from "./component.js";
 
+// FixMe: A major bug: this class is not initialized yet when the Attribute decorators are being called, causing null pointer exceptions.
 export class Config {
     private static readonly instance: Config = new Config();
     public static getInstance(): Config {
@@ -10,6 +11,7 @@ export class Config {
     private readonly attributeMappingMap: Map<string, string> = new Map<string, string>();
 
     private constructor() {
+        console.log("A");
     }
 
     public putParser(tagName: string, parser: (expr) => Component): void {
