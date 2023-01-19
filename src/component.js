@@ -339,7 +339,7 @@ __decorate([
     __metadata("design:type", Component)
 ], Skeleton.prototype, "component", void 0);
 let HTMLBlock = HTMLBlock_1 = class HTMLBlock extends Component {
-    static PARSER = expr => new HTMLBlock_1(Text.decompile(expr));
+    static PARSER = expr => new HTMLBlock_1(Text.PARSER(expr));
     html;
     constructor(html = null) {
         super();
@@ -352,16 +352,16 @@ let HTMLBlock = HTMLBlock_1 = class HTMLBlock extends Component {
         return this.html;
     }
     expr() {
-        return "{" + this.getTagName() + ":" + Text.compile(this.getHTML()) + "}";
+        return "{" + this.getTagName() + ":" + this.getHTML().expr() + "}";
     }
 };
 HTMLBlock = HTMLBlock_1 = __decorate([
     ComponentConfig("html"),
-    __metadata("design:paramtypes", [String])
+    __metadata("design:paramtypes", [Text])
 ], HTMLBlock);
 export { HTMLBlock };
 let MDBlock = MDBlock_1 = class MDBlock extends Component {
-    static PARSER = expr => new MDBlock_1(Text.decompile(expr));
+    static PARSER = expr => new MDBlock_1(Text.PARSER(expr));
     markdown;
     constructor(markdown = null) {
         super();
@@ -374,12 +374,12 @@ let MDBlock = MDBlock_1 = class MDBlock extends Component {
         return this.markdown;
     }
     expr() {
-        return "{" + this.getTagName() + ":" + Text.compile(this.getMarkdown()) + "}";
+        return "{" + this.getTagName() + ":" + this.getMarkdown().expr() + "}";
     }
 };
 MDBlock = MDBlock_1 = __decorate([
     ComponentConfig("md"),
-    __metadata("design:paramtypes", [String])
+    __metadata("design:paramtypes", [Text])
 ], MDBlock);
 export { MDBlock };
 //# sourceMappingURL=component.js.map

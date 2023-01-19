@@ -371,48 +371,48 @@ export class Skeleton extends WrapperComponent {
 
 @ComponentConfig("html")
 export class HTMLBlock extends Component {
-    public static PARSER: (expr) => HTMLBlock = expr => new HTMLBlock(Text.decompile(expr));
+    public static PARSER: (expr) => HTMLBlock = expr => new HTMLBlock(Text.PARSER(expr));
 
-    protected html: string;
+    protected html: Text;
 
-    public constructor(html: string = null) {
+    public constructor(html: Text = null) {
         super();
         this.setHTML(html);
     }
 
-    public setHTML(html: string): void {
+    public setHTML(html: Text): void {
         this.html = html;
     }
 
-    public getHTML(): string {
+    public getHTML(): Text {
         return this.html;
     }
 
     public expr(): string {
-        return "{" + this.getTagName() + ":" + Text.compile(this.getHTML()) + "}";
+        return "{" + this.getTagName() + ":" + this.getHTML().expr() + "}";
     }
 }
 
 @ComponentConfig("md")
 export class MDBlock extends Component {
-    public static PARSER: (expr) => MDBlock = expr => new MDBlock(Text.decompile(expr));
+    public static PARSER: (expr) => MDBlock = expr => new MDBlock(Text.PARSER(expr));
 
-    protected markdown: string;
+    protected markdown: Text;
 
-    public constructor(markdown: string = null) {
+    public constructor(markdown: Text = null) {
         super();
         this.setMarkdown(markdown);
     }
 
-    public setMarkdown(markdown: string): void {
+    public setMarkdown(markdown: Text): void {
         this.markdown = markdown;
     }
 
-    public getMarkdown(): string {
+    public getMarkdown(): Text {
         return this.markdown;
     }
 
     public expr(): string {
-        return "{" + this.getTagName() + ":" + Text.compile(this.getMarkdown()) + "}";
+        return "{" + this.getTagName() + ":" + this.getMarkdown().expr() + "}";
     }
 }
