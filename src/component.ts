@@ -48,7 +48,11 @@ export abstract class Component {
         return this.style;
     }
 
-    public forEach(action: (component: Component, depth: number) => boolean, depth: number = 0): void {
+    public forEach(action: (component: Component, depth: number) => void, depth: number = 0): void {
+        action(this, depth);
+    }
+
+    public parallelTraversal(action: (component: Component, depth: number) => void, depth: number = 0): void {
         action(this, depth);
     }
 
@@ -198,8 +202,17 @@ export class MultiComponent extends Component implements Iterable<Component> {
         this.components = components;
     }
 
-    public forEach(action: (component: Component, depth: number) => boolean, depth: number = 0) {
-        for (let component of this.components) if (!action(component, depth)) break;
+    public forEach(action: (component: Component, depth: number) => void, depth: number = 0) {
+        for (let component of this.components) component.forEach(action, depth);
+    }
+
+    public parallelTraversal(action: (component: Component, depth: number) => void, depth: number = 0, components: Component[] = this.components) {
+        const next = [];
+        for (let component of components) {
+            if (component instanceof WrapperComponent) next.push(...component.getChildren().components);
+            action(component, depth);
+        }
+        if (next.length > 0) this.parallelTraversal(action, depth + 1, next);
     }
 
     public expr(): string {
@@ -290,9 +303,14 @@ export abstract class WrapperComponent extends Component {
         this.children.remove(index);
     }
 
-    public forEach(action: (component: Component, depth: number) => boolean, depth: number = 0) {
+    public forEach(action: (component: Component, depth: number) => void, depth: number = 0) {
         super.forEach(action, depth);
         this.getChildren().forEach(action, depth + 1);
+    }
+
+    public parallelTraversal(action: (component: Component, depth: number) => void, depth: number = 0) {
+        super.parallelTraversal(action, depth);
+        this.getChildren().parallelTraversal(action, depth + 1);
     }
 
     public expr(): string {

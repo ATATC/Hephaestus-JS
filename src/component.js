@@ -52,6 +52,9 @@ export class Component {
     forEach(action, depth = 0) {
         action(this, depth);
     }
+    parallelTraversal(action, depth = 0) {
+        action(this, depth);
+    }
 }
 Component.prototype.toString = function () {
     return this.expr();
@@ -190,8 +193,17 @@ export class MultiComponent extends Component {
     }
     forEach(action, depth = 0) {
         for (let component of this.components)
-            if (!action(component, depth))
-                break;
+            component.forEach(action, depth);
+    }
+    parallelTraversal(action, depth = 0, components = this.components) {
+        const next = [];
+        for (let component of components) {
+            if (component instanceof WrapperComponent)
+                next.push(...component.getChildren().components);
+            action(component, depth);
+        }
+        if (next.length > 0)
+            this.parallelTraversal(action, depth + 1, next);
     }
     expr() {
         if (this.components.length == 0)
@@ -270,6 +282,10 @@ export class WrapperComponent extends Component {
     forEach(action, depth = 0) {
         super.forEach(action, depth);
         this.getChildren().forEach(action, depth + 1);
+    }
+    parallelTraversal(action, depth = 0) {
+        super.parallelTraversal(action, depth);
+        this.getChildren().parallelTraversal(action, depth + 1);
     }
     expr() {
         return "{" + this.getTagName() + ":" + extractAttributes(this) + this.getChildren().expr() + "}";
