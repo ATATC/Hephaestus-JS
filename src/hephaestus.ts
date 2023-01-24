@@ -21,3 +21,7 @@ export function parseExpr(expr: string): Component {
     const parser = Config.getInstance().getParser(temp.tagName);
     return parser == null ? temp : parser(temp.inner);
 }
+
+export function listTagNames(): string[] {
+    return Config.getInstance().listTagNames();
+}

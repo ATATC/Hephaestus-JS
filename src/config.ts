@@ -17,6 +17,10 @@ export class Config {
         return this;
     }
 
+    public listTagNames(): string[] {
+        return Array.from(this.parserMap.keys());
+    }
+
     public putParser(tagName: string, parser: (expr) => Component): void {
         this.parserMap.set(tagName, parser);
     }
