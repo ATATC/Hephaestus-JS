@@ -389,7 +389,7 @@ export class Skeleton extends WrapperComponent {
 
 @ComponentConfig("html")
 export class HTMLBlock extends Component {
-    public static PARSER: (expr) => HTMLBlock = expr => new HTMLBlock(Text.PARSER(expr));
+    public static PARSER: (expr) => HTMLBlock = expr => new HTMLBlock(<Text> parseExpr(expr));
 
     protected html: Text;
 
@@ -413,7 +413,7 @@ export class HTMLBlock extends Component {
 
 @ComponentConfig("md")
 export class MDBlock extends Component {
-    public static PARSER: (expr) => MDBlock = expr => new MDBlock(Text.PARSER(expr));
+    public static PARSER: (expr) => MDBlock = expr => new MDBlock(<Text> parseExpr(expr));
 
     protected markdown: Text;
 
