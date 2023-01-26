@@ -140,6 +140,19 @@ export class Text extends Component {
             return e && s.charAt(1) != Text.COMPILER_CHARACTER;
         return e;
     }
+    static charAtEqualsAny(s, i, ...cs) {
+        const bit = s.charAt(i);
+        for (let c of cs) {
+            if (bit != c)
+                continue;
+            if (i > 0)
+                return s.charAt(i - 1) != Text.COMPILER_CHARACTER;
+            if (c == Text.COMPILER_CHARACTER && s.length > 1)
+                return s.charAt(1) != Text.COMPILER_CHARACTER;
+            return true;
+        }
+        return false;
+    }
     static startsWith(s, c) {
         return Text.charAtEquals(s, 0, c);
     }
@@ -355,7 +368,7 @@ __decorate([
     __metadata("design:type", Component)
 ], Skeleton.prototype, "component", void 0);
 let HTMLBlock = HTMLBlock_1 = class HTMLBlock extends Component {
-    static PARSER = expr => new HTMLBlock_1(Text.PARSER(expr));
+    static PARSER = expr => new HTMLBlock_1(parseExpr(expr));
     html;
     constructor(html = null) {
         super();
@@ -377,7 +390,7 @@ HTMLBlock = HTMLBlock_1 = __decorate([
 ], HTMLBlock);
 export { HTMLBlock };
 let MDBlock = MDBlock_1 = class MDBlock extends Component {
-    static PARSER = expr => new MDBlock_1(Text.PARSER(expr));
+    static PARSER = expr => new MDBlock_1(parseExpr(expr));
     markdown;
     constructor(markdown = null) {
         super();

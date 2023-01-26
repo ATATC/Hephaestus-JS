@@ -148,6 +148,17 @@ export class Text extends Component {
         return e;
     }
 
+    public static charAtEqualsAny(s: string, i: number, ...cs: string[]): boolean {
+        const bit = s.charAt(i);
+        for (let c of cs) {
+            if (bit != c) continue;
+            if (i > 0) return s.charAt(i - 1) != Text.COMPILER_CHARACTER;
+            if (c == Text.COMPILER_CHARACTER && s.length > 1) return s.charAt(1) != Text.COMPILER_CHARACTER;
+            return true;
+        }
+        return false;
+    }
+
     public static startsWith(s: string, c: string): boolean {
         return Text.charAtEquals(s, 0, c);
     }

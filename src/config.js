@@ -10,6 +10,9 @@ export class Config {
     getInstance() {
         return this;
     }
+    listTagNames() {
+        return Array.from(this.parserMap.keys());
+    }
     putParser(tagName, parser) {
         this.parserMap.set(tagName, parser);
     }
