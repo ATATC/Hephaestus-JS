@@ -1,4 +1,4 @@
-import {Component, Text} from "./component.js";
+import {Component, Text} from "./component/component.js";
 import {parseExpr} from "./hephaestus.js";
 import {Config} from "./config.js";
 

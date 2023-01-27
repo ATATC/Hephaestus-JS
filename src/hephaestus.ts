@@ -1,4 +1,4 @@
-import {Component, MultiComponent, Skeleton, Text, UnsupportedComponent} from "./component.js";
+import {Component, MultiComponent, Skeleton, Text, UnsupportedComponent} from "./component/component.js";
 import {ComponentNotClosed} from "./exception.js";
 import {Config} from "./config.js";
 

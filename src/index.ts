@@ -3,7 +3,7 @@ export {
     Skeleton,
     HTMLBlock,
     MDBlock
-} from "./component.js";
+} from "./component/component.js";
 export {
     parseExpr
 } from "./hephaestus.js";

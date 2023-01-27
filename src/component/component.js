@@ -7,12 +7,12 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
-var HTMLBlock_1, MDBlock_1;
-import { Style } from "./style.js";
-import { BadFormat, MissingFieldException } from "./exception.js";
-import { parseExpr } from "./hephaestus.js";
-import { Attribute, extractAttributes, injectAttributes, searchAttributesInExpr } from "./attribute.js";
-import { Config } from "./config.js";
+var Ref_1, HTMLBlock_1, MDBlock_1;
+import { Style } from "../style.js";
+import { BadFormat, MissingFieldException } from "../exception.js";
+import { parseExpr } from "../hephaestus.js";
+import { Attribute, extractAttributes, injectAttributes, searchAttributesInExpr } from "../attribute.js";
+import { Config } from "../config.js";
 class ComponentConfigRecord {
     _tagName;
     constructor(tagName = "undefined") {
@@ -31,6 +31,7 @@ export function ComponentConfig(tagName) {
     };
 }
 export class Component {
+    id;
     style = new Style();
     constructor() {
     }
@@ -42,6 +43,12 @@ export class Component {
         if (config == null)
             return "undefined";
         return config.tagName();
+    }
+    setId(id) {
+        this.id = id;
+    }
+    getId() {
+        return this.id;
     }
     setStyle(style) {
         this.style = style;
@@ -55,7 +62,14 @@ export class Component {
     parallelTraversal(action, depth = 0) {
         action(this, depth);
     }
+    generateExpr(inner) {
+        return "{" + this.getTagName() + ":" + extractAttributes(this) + inner + "}";
+    }
 }
+__decorate([
+    Attribute(),
+    __metadata("design:type", String)
+], Component.prototype, "id", void 0);
 Component.prototype.toString = function () {
     return this.expr();
 };
@@ -174,6 +188,25 @@ export class Text extends Component {
         return [startIndex, -1];
     }
 }
+let Ref = Ref_1 = class Ref extends Component {
+    static PARSER = expr => new Ref_1(expr);
+    to;
+    constructor(id) {
+        super();
+        this.setId(id);
+    }
+    referTo(real) {
+        this.to = real;
+    }
+    expr() {
+        return this.to == null ? "{" + this.getTagName() + ":" + this.getId() + "}" : this.to.expr();
+    }
+};
+Ref = Ref_1 = __decorate([
+    ComponentConfig("ref"),
+    __metadata("design:paramtypes", [String])
+], Ref);
+export { Ref };
 export class MultiComponent extends Component {
     static PARSER = expr => {
         let open, close;
@@ -301,7 +334,7 @@ export class WrapperComponent extends Component {
         this.getChildren().parallelTraversal(action, depth + 1);
     }
     expr() {
-        return "{" + this.getTagName() + ":" + extractAttributes(this) + this.getChildren().expr() + "}";
+        return this.generateExpr(this.getChildren().expr());
     }
     static makeParser(constructor) {
         return expr => {
@@ -362,6 +395,10 @@ export class Skeleton extends WrapperComponent {
         const expr = "<" + Text.compile(this.getName()) + ":" + extractAttributes(this) + this.getChildren().expr();
         return (expr.endsWith(":") ? expr.substring(0, expr.length - 1) : expr) + ">";
     }
+    compile(compiler) {
+        if (this.getComponent() instanceof Ref)
+            compiler(this.getComponent());
+    }
 }
 __decorate([
     Attribute(),
@@ -381,7 +418,7 @@ let HTMLBlock = HTMLBlock_1 = class HTMLBlock extends Component {
         return this.html;
     }
     expr() {
-        return "{" + this.getTagName() + ":" + this.getHTML().expr() + "}";
+        return this.generateExpr(this.getHTML().expr());
     }
 };
 HTMLBlock = HTMLBlock_1 = __decorate([
@@ -403,7 +440,7 @@ let MDBlock = MDBlock_1 = class MDBlock extends Component {
         return this.markdown;
     }
     expr() {
-        return "{" + this.getTagName() + ":" + this.getMarkdown().expr() + "}";
+        return this.generateExpr(this.getMarkdown().expr());
     }
 };
 MDBlock = MDBlock_1 = __decorate([

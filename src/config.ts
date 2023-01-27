@@ -1,4 +1,4 @@
-import {Component} from "./component.js";
+import {Component} from "./component/component.js";
 
 export class Config {
     private static readonly instance: Config = new Config();

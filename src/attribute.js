@@ -1,4 +1,4 @@
-import { Text } from "./component.js";
+import { Text } from "./component/component.js";
 import { parseExpr } from "./hephaestus.js";
 import { Config } from "./config.js";
 export function Attribute(name = "") {

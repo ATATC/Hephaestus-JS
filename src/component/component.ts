@@ -1,8 +1,9 @@
-import {Style} from "./style.js";
-import {BadFormat, MissingFieldException} from "./exception.js";
-import {parseExpr} from "./hephaestus.js";
-import {Attribute, extractAttributes, injectAttributes, searchAttributesInExpr} from "./attribute.js";
-import {Config} from "./config.js";
+import {Style} from "../style.js";
+import {BadFormat, MissingFieldException} from "../exception.js";
+import {parseExpr} from "../hephaestus.js";
+import {Attribute, extractAttributes, injectAttributes, searchAttributesInExpr} from "../attribute.js";
+import {Config} from "../config.js";
+import {Compilable} from "./compilable.js";
 
 class ComponentConfigRecord {
     protected readonly _tagName: string;
@@ -25,6 +26,8 @@ export function ComponentConfig(tagName: string): Function {
 }
 
 export abstract class Component {
+    @Attribute()
+    protected id: string;
     protected style: Style = new Style();
 
     protected constructor() {
@@ -38,6 +41,14 @@ export abstract class Component {
         const config = this.getConfig();
         if (config == null) return "undefined";
         return config.tagName();
+    }
+
+    public setId(id: string): void {
+        this.id = id;
+    }
+
+    public getId(): string {
+        return this.id;
     }
 
     public setStyle(style: Style): void {
@@ -54,6 +65,10 @@ export abstract class Component {
 
     public parallelTraversal(action: (component: Component, depth: number) => void, depth: number = 0): void {
         action(this, depth);
+    }
+
+    protected generateExpr(inner: string): string {
+        return "{" + this.getTagName() + ":" + extractAttributes(this) + inner + "}";
     }
 
     public abstract expr(): string;
@@ -179,6 +194,26 @@ export class Text extends Component {
             else if (Text.charAtEquals(s, i, close) && --depth == requiredDepth) return [startIndex, i];
         }
         return [startIndex, -1];
+    }
+}
+
+@ComponentConfig("ref")
+export class Ref extends Component {
+    public static PARSER: (expr) => Ref = expr => new Ref(expr);
+
+    protected to: Component;
+
+    public constructor(id: string) {
+        super();
+        this.setId(id);
+    }
+
+    public referTo(real: Component): void {
+        this.to = real;
+    }
+
+    public expr(): string {
+        return this.to == null ? "{" + this.getTagName() + ":" + this.getId() + "}" : this.to.expr();
     }
 }
 
@@ -325,7 +360,7 @@ export abstract class WrapperComponent extends Component {
     }
 
     public expr(): string {
-        return "{" + this.getTagName() + ":" + extractAttributes(this) + this.getChildren().expr() + "}";
+        return this.generateExpr(this.getChildren().expr());
     }
 
     public static makeParser <C extends WrapperComponent> (constructor: Function): (expr) => C {
@@ -346,7 +381,7 @@ export abstract class WrapperComponent extends Component {
     }
 }
 
-export class Skeleton extends WrapperComponent {
+export class Skeleton extends WrapperComponent implements Compilable {
     public static PARSER: (expr) => Skeleton = WrapperComponent.makeParser(Skeleton);
 
     protected name: string;
@@ -396,6 +431,10 @@ export class Skeleton extends WrapperComponent {
         const expr = "<" + Text.compile(this.getName()) + ":" + extractAttributes(this) + this.getChildren().expr();
         return (expr.endsWith(":") ? expr.substring(0, expr.length - 1) : expr) + ">";
     }
+
+    public compile(compiler: (...refs: Ref[]) => void) {
+        if (this.getComponent() instanceof Ref) compiler(<Ref> this.getComponent());
+    }
 }
 
 @ComponentConfig("html")
@@ -418,7 +457,7 @@ export class HTMLBlock extends Component {
     }
 
     public expr(): string {
-        return "{" + this.getTagName() + ":" + this.getHTML().expr() + "}";
+        return this.generateExpr(this.getHTML().expr());
     }
 }
 
@@ -442,6 +481,6 @@ export class MDBlock extends Component {
     }
 
     public expr(): string {
-        return "{" + this.getTagName() + ":" + this.getMarkdown().expr() + "}";
+        return this.generateExpr(this.getMarkdown().expr());
     }
 }

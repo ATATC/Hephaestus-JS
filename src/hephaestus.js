@@ -1,4 +1,4 @@
-import { MultiComponent, Skeleton, Text, UnsupportedComponent } from "./component.js";
+import { MultiComponent, Skeleton, Text, UnsupportedComponent } from "./component/component.js";
 import { ComponentNotClosed } from "./exception.js";
 import { Config } from "./config.js";
 export function parseExpr(expr) {
