@@ -1,5 +1,10 @@
-import {clean, parse} from "../src/hephaestus.js";
+import {MDBlock, parseExpr, Skeleton, Text} from "../src/index.js";
 
-const a = clean(" < skeleton : (component = {md: {\n### Test\n\nThis is a test.\n}};) [<skeleton2> <skeleton3>]> ");
-console.log(a);
-console.log(parse(a).expr());
+const welcome = new Skeleton("Welcome");
+welcome.setComponent(new MDBlock(new Text("# Hephaestus\n\nThe most suitable text language for documentation. Native support for Markdown and HTML.")));
+const introductionToHephaestus = new Skeleton("Introduction to Hephaestus");
+introductionToHephaestus.setComponent(new MDBlock(new Text("## Installation")));
+welcome.appendChild(introductionToHephaestus);
+const expr = welcome.expr();
+console.log(expr);
+console.log(parseExpr(expr).expr());
