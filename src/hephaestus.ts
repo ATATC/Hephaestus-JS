@@ -1,6 +1,7 @@
-import {Component, MultiComponent, Skeleton, Text, UnsupportedComponent} from "./component/component.js";
+import {Component, MultiComponent, Ref, Skeleton, Text, UnsupportedComponent} from "./component/component.js";
 import {ComponentNotClosed} from "./exception.js";
 import {Config} from "./config.js";
+import {Compilable, implementationOfCompilable} from "./component/compilable.js";
 
 export function parseExpr(expr: string): Component {
     if (expr == null || expr == "") return null;
@@ -53,4 +54,16 @@ export function clean(expr: string): string {
         builder += bit;
     }
     return builder;
+}
+
+export function compileComponentTree(top: Component): Component {
+    const componentMap = {};
+    const references = [];
+    top.parallelTraversal((component, depth) => {
+        if (component instanceof Ref) references.push(<Ref> component);
+        else if (component.getId() != null) componentMap[component.getId()] = component;
+        if (implementationOfCompilable(component)) component.compile(refs => references.push(refs));
+    });
+    references.forEach(ref => ref.referTo(componentMap[ref.getId()]));
+    return top;
 }

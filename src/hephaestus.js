@@ -1,6 +1,7 @@
-import { MultiComponent, Skeleton, Text, UnsupportedComponent } from "./component/component.js";
+import { MultiComponent, Ref, Skeleton, Text, UnsupportedComponent } from "./component/component.js";
 import { ComponentNotClosed } from "./exception.js";
 import { Config } from "./config.js";
+import { implementationOfCompilable } from "./component/compilable.js";
 export function parseExpr(expr) {
     if (expr == null || expr == "")
         return null;
@@ -61,5 +62,19 @@ export function clean(expr) {
         builder += bit;
     }
     return builder;
+}
+export function compileComponentTree(top) {
+    const componentMap = {};
+    const references = [];
+    top.parallelTraversal((component, depth) => {
+        if (component instanceof Ref)
+            references.push(component);
+        else if (component.getId() != null)
+            componentMap[component.getId()] = component;
+        if (implementationOfCompilable(component))
+            component.compile(refs => references.push(refs));
+    });
+    references.forEach(ref => ref.referTo(componentMap[ref.getId()]));
+    return top;
 }
 //# sourceMappingURL=hephaestus.js.map
