@@ -10,8 +10,11 @@ export function extractAttributes(component) {
     let attributes = "(";
     for (let field of Object.keys(component)) {
         const attributeName = Config.getInstance().getAttributeName(Object.getPrototypeOf(component).constructor.name, field);
-        if (attributeName != null)
-            attributes += attributeName + "=" + Reflect.get(component, field) + ";";
+        if (attributeName == null)
+            continue;
+        const attributeVal = Reflect.get(component, field);
+        if (attributeVal != null)
+            attributes += attributeName + "=" + attributeVal + ";";
     }
     if (attributes.length == 1)
         return "";
