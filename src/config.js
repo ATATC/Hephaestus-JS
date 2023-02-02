@@ -27,11 +27,11 @@ export class Config {
     }
     getAttributes(prefix) {
         const attributes = [];
-        for (let [index, attrName] of this.attributeMappingMap.entries()) {
+        this.attributeMappingMap.forEach((index, attrName) => {
             const [pre, field] = index.split(".");
             if (pre == prefix)
                 attributes.push([field, attrName]);
-        }
+        });
         return attributes;
     }
 }

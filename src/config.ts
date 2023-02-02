@@ -39,10 +39,10 @@ export class Config {
 
     public getAttributes(prefix: string): [string, string][] {
         const attributes = [];
-        for (let [index, attrName] of this.attributeMappingMap.entries()) {
+        this.attributeMappingMap.forEach((index, attrName) => {
             const [pre, field] = index.split(".");
             if (pre == prefix) attributes.push([field, attrName]);
-        }
+        });
         return attributes;
     }
 }
