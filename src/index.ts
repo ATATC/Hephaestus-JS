@@ -7,6 +7,7 @@ export {
     MDBlock
 } from "./component/component.js";
 export {
+    listTagNames,
     clean,
     compileComponentTree,
     parse,
