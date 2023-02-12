@@ -132,7 +132,7 @@ export class Text extends Component {
         if (c == null)
             for (let k of Text.RESERVED_KEYWORDS)
                 s = Text.decompile(s, k);
-        return s.replace(Text.quote(s), c);
+        return s.replace(Text.quote(c), c);
     }
     static indexOf(s, c, fromIndex = 0) {
         for (let i = fromIndex; i < s.length; i++)
