@@ -27,7 +27,7 @@ export class Config {
     }
     getAttributes(prefix) {
         const attributes = [];
-        this.attributeMappingMap.forEach((index, attrName) => {
+        this.attributeMappingMap.forEach((attrName, index) => {
             const [pre, field] = index.split(".");
             if (pre == prefix)
                 attributes.push([field, attrName]);
