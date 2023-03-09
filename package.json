@@ -12,10 +12,10 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/ATATC/Hephaestus-JS"
+    "url": "https://github.com/ATATCTech/Hephaestus-JS"
   },
   "license": "The Apache License, Version 2.0",
-  "homepage": "https://github.com/ATATC/Hephaestus-JS",
+  "homepage": "https://github.com/ATATCTech/Hephaestus-JS",
   "main": "./src/index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
