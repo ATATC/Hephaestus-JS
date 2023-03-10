@@ -40,9 +40,7 @@ export class Component {
     }
     getTagName() {
         const config = this.getConfig();
-        if (config == null)
-            return "undefined";
-        return config.tagName();
+        return config == null ? "undefined" : config.tagName();
     }
     setId(id) {
         this.id = id;

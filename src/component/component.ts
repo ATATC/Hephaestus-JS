@@ -39,8 +39,7 @@ export abstract class Component {
 
     public getTagName(): string {
         const config = this.getConfig();
-        if (config == null) return "undefined";
-        return config.tagName();
+        return config == null ? "undefined" : config.tagName();
     }
 
     public setId(id: string): void {
