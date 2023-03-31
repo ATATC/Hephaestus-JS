@@ -133,16 +133,18 @@ export class Text extends Component {
         return Text.COMPILER_CHARACTER + c;
     }
 
+    // FixMe
     public static compile(s: string, c: string = null): string | null {
         if (s == null) return null;
         if (c == null) for (let k of Text.RESERVED_KEYWORDS) s = Text.compile(s, k);
-        return s.replace(c, Text.quote(c));
+        return s.replaceAll(c, Text.quote(c));
     }
 
+    // FixMe
     public static decompile(s: string, c: string = null): string | null {
         if (s == null) return null;
         if (c == null) for (let k of Text.RESERVED_KEYWORDS) s = Text.decompile(s, k);
-        return s.replace(Text.quote(c), c);
+        return s.replaceAll(Text.quote(c), c);
     }
 
     public static indexOf(s: string, c: string, fromIndex: number = 0): number {
