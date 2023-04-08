@@ -122,7 +122,7 @@ export class Text extends Component {
         if (c == null)
             for (let k of Text.RESERVED_KEYWORDS)
                 s = Text.compile(s, k);
-        return s.replace(c, Text.quote(c));
+        return s.replaceAll(c, Text.quote(c));
     }
     static decompile(s, c = null) {
         if (s == null)
@@ -130,7 +130,7 @@ export class Text extends Component {
         if (c == null)
             for (let k of Text.RESERVED_KEYWORDS)
                 s = Text.decompile(s, k);
-        return s.replace(Text.quote(c), c);
+        return s.replaceAll(Text.quote(c), c);
     }
     static indexOf(s, c, fromIndex = 0) {
         for (let i = fromIndex; i < s.length; i++)

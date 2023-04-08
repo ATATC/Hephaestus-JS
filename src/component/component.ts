@@ -133,14 +133,12 @@ export class Text extends Component {
         return Text.COMPILER_CHARACTER + c;
     }
 
-    // FixMe
     public static compile(s: string, c: string = null): string | null {
         if (s == null) return null;
         if (c == null) for (let k of Text.RESERVED_KEYWORDS) s = Text.compile(s, k);
         return s.replaceAll(c, Text.quote(c));
     }
 
-    // FixMe
     public static decompile(s: string, c: string = null): string | null {
         if (s == null) return null;
         if (c == null) for (let k of Text.RESERVED_KEYWORDS) s = Text.decompile(s, k);
