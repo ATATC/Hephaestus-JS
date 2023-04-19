@@ -376,7 +376,10 @@ export class Skeleton extends WrapperComponent {
         return this.component;
     }
     setParent(parent) {
-        this.parent = parent;
+        if (parent == null || parent.getChildren().contains(this))
+            this.parent = parent;
+        else
+            parent.appendChild(this);
     }
     getParent() {
         return this.parent;

@@ -411,11 +411,12 @@ export class Skeleton extends WrapperComponent implements Compilable {
         return this.component;
     }
 
-    public setParent(parent: Skeleton): void {
-        this.parent = parent;
+    public setParent(parent: Skeleton | null): void {
+        if (parent == null || parent.getChildren().contains(this)) this.parent = parent;
+        else parent.appendChild(this);
     }
 
-    public getParent(): Skeleton {
+    public getParent(): Skeleton | null {
         return this.parent;
     }
 
