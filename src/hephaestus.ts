@@ -23,12 +23,9 @@ export function parseExpr(expr: string): Component {
         return parser == null ? temp : parser(temp.inner);
     }
     if (!Text.wrappedBy(expr, '<', '>')) throw new ComponentNotClosed(expr);
-    let skeleton;
-    if (temp.tagName == "") skeleton = new Skeleton(temp.inner);
-    else {
-        skeleton = Skeleton.PARSER(temp.inner);
-        skeleton.setName(Text.decompile(temp.tagName));
-    }
+    if (temp.tagName == "") return new Skeleton(Text.decompile(temp.inner));
+    const skeleton = Skeleton.PARSER(temp.inner);
+    skeleton.setName(Text.decompile(temp.tagName));
     return skeleton;
 }
 
