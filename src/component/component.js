@@ -223,7 +223,10 @@ export class MultiComponent extends Component {
         let [start, end] = Text.pairBrackets(expr, open, close);
         const components = [];
         while (start >= 0 && end++ >= 0) {
-            components.push(parseExpr(expr.substring(start, end)));
+            const component = parseExpr(expr.substring(start, end));
+            if (component == null)
+                continue;
+            components.push(component);
             expr = expr.substring(end);
             [start, end] = Text.pairBrackets(expr, open, close);
         }
