@@ -61,17 +61,20 @@ export function clean(expr) {
     return builder;
 }
 export function compileComponentTree(top) {
-    const componentMap = {};
+    const componentMap = new Map();
     const references = [];
-    top.parallelTraversal((component, depth) => {
+    top.parallelTraversal((component) => {
         if (component instanceof Ref)
             references.push(component);
-        else if (component.getId() != null)
-            componentMap[component.getId()] = component;
+        else {
+            const id = component.getId();
+            if (id != null)
+                componentMap.set(id, component);
+        }
         if (implementationOfCompilable(component))
             component.compile(refs => references.push(refs));
     });
-    references.forEach(ref => ref.referTo(componentMap[ref.getId()]));
+    references.forEach(ref => ref.referTo(componentMap.get(ref.getId())));
     return top;
 }
 //# sourceMappingURL=hephaestus.js.map

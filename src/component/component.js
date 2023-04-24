@@ -7,7 +7,7 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
-var Ref_1, HTMLBlock_1, MDBlock_1;
+var Ref_1, Version_1, HTMLBlock_1, MDBlock_1;
 import { Style } from "../style.js";
 import { BadFormat, MissingFieldException } from "../exception.js";
 import { parseExpr } from "../hephaestus.js";
@@ -31,7 +31,7 @@ export function ComponentConfig(tagName) {
     };
 }
 export class Component {
-    id;
+    id = null;
     style = new Style();
     constructor() {
     }
@@ -66,7 +66,7 @@ export class Component {
 }
 __decorate([
     Attribute(),
-    __metadata("design:type", String)
+    __metadata("design:type", Object)
 ], Component.prototype, "id", void 0);
 Component.prototype.toString = function () {
     return this.expr();
@@ -84,10 +84,11 @@ export class UnsupportedComponent extends Component {
 }
 export class Text extends Component {
     static PARSER = expr => new Text(Text.decompile(expr));
-    text;
-    constructor(text) {
+    text = "";
+    constructor(text = null) {
         super();
-        this.setText(text);
+        if (text != null)
+            this.setText(text);
     }
     setText(text) {
         this.text = text;
@@ -117,20 +118,18 @@ export class Text extends Component {
         return Text.COMPILER_CHARACTER + c;
     }
     static compile(s, c = null) {
-        if (s == null)
-            return null;
-        if (c == null)
-            for (let k of Text.RESERVED_KEYWORDS)
-                s = Text.compile(s, k);
-        return s.replaceAll(c, Text.quote(c));
+        if (c != null)
+            return s.replaceAll(c, Text.quote(c));
+        for (let k of Text.RESERVED_KEYWORDS)
+            s = Text.compile(s, k);
+        return s;
     }
     static decompile(s, c = null) {
-        if (s == null)
-            return null;
-        if (c == null)
-            for (let k of Text.RESERVED_KEYWORDS)
-                s = Text.decompile(s, k);
-        return s.replaceAll(Text.quote(c), c);
+        if (c != null)
+            return s.replaceAll(Text.quote(c), c);
+        for (let k of Text.RESERVED_KEYWORDS)
+            s = Text.decompile(s, k);
+        return s;
     }
     static indexOf(s, c, fromIndex = 0) {
         for (let i = fromIndex; i < s.length; i++)
@@ -188,7 +187,7 @@ export class Text extends Component {
 }
 let Ref = Ref_1 = class Ref extends Component {
     static PARSER = expr => new Ref_1(expr);
-    to;
+    to = null;
     constructor(id) {
         super();
         this.setId(id);
@@ -197,12 +196,15 @@ let Ref = Ref_1 = class Ref extends Component {
         this.to = real;
     }
     expr() {
-        return this.to == null ? "{" + this.getTagName() + ":" + this.getId() + "}" : this.to.expr();
+        if (this.to != null)
+            return this.to.expr();
+        const id = this.getId();
+        return this.generateExpr(id == null ? "" : id);
     }
 };
 Ref = Ref_1 = __decorate([
     ComponentConfig("ref"),
-    __metadata("design:paramtypes", [String])
+    __metadata("design:paramtypes", [Object])
 ], Ref);
 export { Ref };
 export class MultiComponent extends Component {
@@ -250,10 +252,10 @@ export class MultiComponent extends Component {
             this.parallelTraversal(action, depth + 1, next);
     }
     expr() {
-        if (this.components.length == 0)
-            return "";
-        if (this.components.length == 1)
-            return this.components.at(0).expr();
+        if (this.components.length < 2) {
+            const component = this.components.at(0);
+            return component == null ? "" : component.expr();
+        }
         let expr = "[";
         this.components.forEach(component => expr += component.expr());
         return expr + "]";
@@ -303,7 +305,7 @@ export class MultiComponent extends Component {
     }
 }
 export class WrapperComponent extends Component {
-    children;
+    children = new MultiComponent();
     constructor(children = new MultiComponent()) {
         super();
         this.setChildren(children);
@@ -356,12 +358,13 @@ export class WrapperComponent extends Component {
 }
 export class Skeleton extends WrapperComponent {
     static PARSER = WrapperComponent.makeParser(Skeleton);
-    name;
-    component;
-    parent;
+    name = "unnamed";
+    component = null;
+    parent = null;
     constructor(name = null) {
         super();
-        this.setName(name);
+        if (name != null)
+            this.setName(name);
     }
     setName(name) {
         this.name = name;
@@ -403,11 +406,57 @@ export class Skeleton extends WrapperComponent {
 }
 __decorate([
     Attribute(),
-    __metadata("design:type", Component)
+    __metadata("design:type", Object)
 ], Skeleton.prototype, "component", void 0);
+class Serial {
+    args;
+    constructor(...args) {
+        this.args = args;
+    }
+    equals(o, sequential) {
+        if (sequential == null) {
+            if (this == o)
+                return true;
+            if (o instanceof Serial)
+                return this.equals(o, true);
+            return false;
+        }
+        if (this.args.length != o.args.length)
+            return false;
+        for (let i = 0; i < this.args.length; i++) {
+            if (sequential) {
+                if (this.args[i] != o.args[i])
+                    return false;
+            }
+            else if (!o.args.includes(this.args[i]))
+                return false;
+        }
+        return true;
+    }
+}
+let Version = Version_1 = class Version extends WrapperComponent {
+    Serial = Serial;
+    static PARSER = WrapperComponent.makeParser(Version_1);
+    serial = new Serial("undefined");
+    constructor(serial) {
+        super();
+        this.setSerial(serial instanceof Serial ? serial : new Serial(serial));
+    }
+    setSerial(serial) {
+        this.serial = serial;
+    }
+    getSerial() {
+        return this.serial;
+    }
+};
+Version = Version_1 = __decorate([
+    ComponentConfig("v"),
+    __metadata("design:paramtypes", [Object])
+], Version);
+export { Version };
 let HTMLBlock = HTMLBlock_1 = class HTMLBlock extends Component {
     static PARSER = expr => new HTMLBlock_1(parseExpr(expr));
-    html;
+    html = null;
     constructor(html = null) {
         super();
         this.setHTML(html);
@@ -416,7 +465,7 @@ let HTMLBlock = HTMLBlock_1 = class HTMLBlock extends Component {
         this.html = html;
     }
     getHTML() {
-        return this.html;
+        return this.html == null ? new Text() : this.html;
     }
     expr() {
         return this.generateExpr(this.getHTML().expr());
@@ -424,12 +473,12 @@ let HTMLBlock = HTMLBlock_1 = class HTMLBlock extends Component {
 };
 HTMLBlock = HTMLBlock_1 = __decorate([
     ComponentConfig("html"),
-    __metadata("design:paramtypes", [Text])
+    __metadata("design:paramtypes", [Object])
 ], HTMLBlock);
 export { HTMLBlock };
 let MDBlock = MDBlock_1 = class MDBlock extends Component {
     static PARSER = expr => new MDBlock_1(parseExpr(expr));
-    markdown;
+    markdown = null;
     constructor(markdown = null) {
         super();
         this.setMarkdown(markdown);
@@ -438,7 +487,7 @@ let MDBlock = MDBlock_1 = class MDBlock extends Component {
         this.markdown = markdown;
     }
     getMarkdown() {
-        return this.markdown;
+        return this.markdown == null ? new Text() : this.markdown;
     }
     expr() {
         return this.generateExpr(this.getMarkdown().expr());
@@ -446,7 +495,7 @@ let MDBlock = MDBlock_1 = class MDBlock extends Component {
 };
 MDBlock = MDBlock_1 = __decorate([
     ComponentConfig("md"),
-    __metadata("design:paramtypes", [Text])
+    __metadata("design:paramtypes", [Object])
 ], MDBlock);
 export { MDBlock };
 //# sourceMappingURL=component.js.map

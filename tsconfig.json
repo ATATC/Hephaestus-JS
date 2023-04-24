@@ -4,7 +4,7 @@
     "emitDecoratorMetadata": true,
     "target": "ESNext",
     "module": "ESNext",
-    "strict": false,
+    "strict": true,
     "moduleResolution": "NodeNext",
     "sourceMap": true,
     "esModuleInterop": true

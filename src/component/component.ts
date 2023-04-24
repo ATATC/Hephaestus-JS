@@ -27,7 +27,7 @@ export function ComponentConfig(tagName: string): Function {
 
 export abstract class Component {
     @Attribute()
-    protected id: string | null;
+    protected id: string | null = null;
     protected style: Style | null = new Style();
 
     protected constructor() {
@@ -42,7 +42,7 @@ export abstract class Component {
         return config == null ? "undefined" : config.tagName();
     }
 
-    public setId(id: string): void {
+    public setId(id: string | null): void {
         this.id = id;
     }
 
@@ -91,13 +91,13 @@ export class UnsupportedComponent extends Component {
 }
 
 export class Text extends Component {
-    public static PARSER: (expr) => Text = expr => new Text(Text.decompile(expr));
+    public static PARSER: (expr: string) => Text = expr => new Text(Text.decompile(expr));
 
-    protected text: string;
+    protected text: string = "";
 
-    constructor(text: string) {
+    constructor(text: string | null = null) {
         super();
-        this.setText(text);
+        if (text != null) this.setText(text);
     }
 
     public setText(text: string): void {
@@ -133,16 +133,16 @@ export class Text extends Component {
         return Text.COMPILER_CHARACTER + c;
     }
 
-    public static compile(s: string, c: string = null): string | null {
-        if (s == null) return null;
-        if (c == null) for (let k of Text.RESERVED_KEYWORDS) s = Text.compile(s, k);
-        return s.replaceAll(c, Text.quote(c));
+    public static compile(s: string, c: string | null = null): string {
+        if (c != null) return s.replaceAll(c, Text.quote(c));
+        for (let k of Text.RESERVED_KEYWORDS) s = Text.compile(s, k);
+        return s;
     }
 
-    public static decompile(s: string, c: string = null): string | null {
-        if (s == null) return null;
-        if (c == null) for (let k of Text.RESERVED_KEYWORDS) s = Text.decompile(s, k);
-        return s.replaceAll(Text.quote(c), c);
+    public static decompile(s: string, c: string | null = null): string {
+        if (c != null) return s.replaceAll(Text.quote(c), c);
+        for (let k of Text.RESERVED_KEYWORDS) s = Text.decompile(s, k);
+        return s;
     }
 
     public static indexOf(s: string, c: string, fromIndex: number = 0): number {
@@ -198,9 +198,9 @@ export class Text extends Component {
 
 @ComponentConfig("ref")
 export class Ref extends Component {
-    public static PARSER: (expr) => Ref = expr => new Ref(expr);
+    public static PARSER: (expr: string) => Ref = expr => new Ref(expr);
 
-    protected to: Component | null;
+    protected to: Component | null = null;
 
     public constructor(id: string | null) {
         super();
@@ -219,7 +219,7 @@ export class Ref extends Component {
 }
 
 export class MultiComponent extends Component implements Iterable<Component> {
-    public static PARSER: (expr) => MultiComponent = expr => {
+    public static PARSER: (expr: string) => MultiComponent = expr => {
         let open, close;
         if (Text.wrappedBy(expr, "{", "}")) {
             open = "{";
@@ -263,8 +263,10 @@ export class MultiComponent extends Component implements Iterable<Component> {
     }
 
     public expr(): string {
-        if (this.components.length == 0) return "";
-        if (this.components.length == 1) return this.components.at(0).expr();
+        if (this.components.length < 2) {
+            const component = this.components.at(0);
+            return component == null ? "" : component.expr();
+        }
         let expr = "[";
         this.components.forEach(component => expr += component.expr());
         return expr + "]";
@@ -323,7 +325,7 @@ export class MultiComponent extends Component implements Iterable<Component> {
 }
 
 export abstract class WrapperComponent extends Component {
-    protected children: MultiComponent;
+    protected children: MultiComponent = new MultiComponent();
 
     protected constructor(children: MultiComponent = new MultiComponent()) {
         super();
@@ -364,7 +366,7 @@ export abstract class WrapperComponent extends Component {
         return this.generateExpr(this.getChildren().expr());
     }
 
-    public static makeParser <C extends WrapperComponent> (constructor: Function): (expr) => C {
+    public static makeParser <C extends WrapperComponent> (constructor: Function): (expr: string) => C {
         return expr => {
             const component = Object.create(constructor.prototype);
             const attributesAndBody = searchAttributesInExpr(expr);
@@ -383,18 +385,18 @@ export abstract class WrapperComponent extends Component {
 }
 
 export class Skeleton extends WrapperComponent implements Compilable {
-    public static PARSER: (expr) => Skeleton = WrapperComponent.makeParser(Skeleton);
+    public static PARSER: (expr: string) => Skeleton = WrapperComponent.makeParser(Skeleton);
 
-    protected name: string;
+    protected name: string = "unnamed";
 
     @Attribute()
-    protected component: Component | null;
+    protected component: Component | null = null;
 
-    protected parent: Skeleton | null;
+    protected parent: Skeleton | null = null;
 
-    public constructor(name: string = null) {
+    public constructor(name: string | null = null) {
         super();
-        this.setName(name);
+        if (name != null) this.setName(name);
     }
 
     public setName(name: string): void {
@@ -464,9 +466,9 @@ class Serial {
 
 @ComponentConfig("v")
 export class Version extends WrapperComponent {
-    public Serial = Serial;
+    public readonly Serial = Serial;
 
-    public static PARSER: (expr) => Version = WrapperComponent.makeParser(Version);
+    public static PARSER: (expr: string) => Version = WrapperComponent.makeParser(Version);
 
     protected serial: Serial = new Serial("undefined");
 
@@ -486,9 +488,9 @@ export class Version extends WrapperComponent {
 
 @ComponentConfig("html")
 export class HTMLBlock extends Component {
-    public static PARSER: (expr) => HTMLBlock = expr => new HTMLBlock(<Text> parseExpr(expr));
+    public static PARSER: (expr: string) => HTMLBlock = expr => new HTMLBlock(<Text> parseExpr(expr));
 
-    protected html: Text | null;
+    protected html: Text | null = null;
 
     public constructor(html: Text | null = null) {
         super();
@@ -499,8 +501,8 @@ export class HTMLBlock extends Component {
         this.html = html;
     }
 
-    public getHTML(): Text | null {
-        return this.html;
+    public getHTML(): Text {
+        return this.html == null ? new Text() : this.html;
     }
 
     public expr(): string {
@@ -510,9 +512,9 @@ export class HTMLBlock extends Component {
 
 @ComponentConfig("md")
 export class MDBlock extends Component {
-    public static PARSER: (expr) => MDBlock = expr => new MDBlock(<Text> parseExpr(expr));
+    public static PARSER: (expr: string) => MDBlock = expr => new MDBlock(<Text> parseExpr(expr));
 
-    protected markdown: Text | null;
+    protected markdown: Text | null = null;
 
     public constructor(markdown: Text | null = null) {
         super();
@@ -523,8 +525,8 @@ export class MDBlock extends Component {
         this.markdown = markdown;
     }
 
-    public getMarkdown(): Text | null {
-        return this.markdown;
+    public getMarkdown(): Text {
+        return this.markdown == null ? new Text() : this.markdown;
     }
 
     public expr(): string {

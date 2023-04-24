@@ -7,7 +7,7 @@ export class Config {
         return Config.instance;
     }
 
-    private readonly parserMap: Map<string, (expr) => Component> = new Map<string, (expr) => Component>();
+    private readonly parserMap: Map<string, (expr: string) => Component> = new Map<string, (expr: string) => Component>();
     private readonly attributeMappingMap: Map<string, string> = new Map<string, string>();
 
     private constructor() {
@@ -21,24 +21,26 @@ export class Config {
         return Array.from(this.parserMap.keys());
     }
 
-    public putParser(tagName: string, parser: (expr) => Component): void {
+    public putParser(tagName: string, parser: (expr: string) => Component): void {
         this.parserMap.set(tagName, parser);
     }
 
-    public getParser(tagName: string): (expr) => Component {
-        return this.parserMap.get(tagName);
+    public getParser(tagName: string): ((expr: string) => Component) | null {
+        const parser = this.parserMap.get(tagName);
+        return parser == undefined ? null : parser;
     }
 
     public putAttributeMapping(prefix: string, fieldName: string, attributeName: string): void {
         this.attributeMappingMap.set(prefix + "." + fieldName, attributeName);
     }
 
-    public getAttributeName(prefix: string, fieldName: string): string {
-        return this.attributeMappingMap.get(prefix + "." + fieldName);
+    public getAttributeName(prefix: string, fieldName: string): string | null {
+        const attributeName = this.attributeMappingMap.get(prefix + "." + fieldName);
+        return attributeName == undefined ? null : attributeName;
     }
 
     public getAttributes(prefix: string): [string, string][] {
-        const attributes = [];
+        const attributes: [string, string][] = [];
         this.attributeMappingMap.forEach((attrName, index) => {
             const [pre, field] = index.split(".");
             if (pre == prefix) attributes.push([field, attrName]);

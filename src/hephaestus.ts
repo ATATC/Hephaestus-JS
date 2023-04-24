@@ -1,9 +1,9 @@
 import {Component, MultiComponent, Ref, Skeleton, Text, UnsupportedComponent} from "./component/component.js";
 import {ComponentNotClosed} from "./exception.js";
 import {Config} from "./config.js";
-import {Compilable, implementationOfCompilable} from "./component/compilable.js";
+import {implementationOfCompilable} from "./component/compilable.js";
 
-export function parseExpr(expr: string): Component {
+export function parseExpr(expr: string): Component | null {
     if (expr == null || expr == "") return null;
     if (Text.wrappedBy(expr, "[", "]")) return MultiComponent.PARSER(expr.substring(1, expr.length - 1));
     const temp = new UnsupportedComponent();
@@ -29,7 +29,7 @@ export function parseExpr(expr: string): Component {
     return skeleton;
 }
 
-export function parse(expr: string): Component {
+export function parse(expr: string): Component | null {
     return parseExpr(clean(expr));
 }
 
@@ -54,13 +54,16 @@ export function clean(expr: string): string {
 }
 
 export function compileComponentTree(top: Component): Component {
-    const componentMap = {};
-    const references = [];
-    top.parallelTraversal((component, depth) => {
+    const componentMap = new Map();
+    const references: Ref[] = [];
+    top.parallelTraversal((component) => {
         if (component instanceof Ref) references.push(<Ref> component);
-        else if (component.getId() != null) componentMap[component.getId()] = component;
+        else {
+            const id = component.getId();
+            if (id != null) componentMap.set(id, component);
+        }
         if (implementationOfCompilable(component)) component.compile(refs => references.push(refs));
     });
-    references.forEach(ref => ref.referTo(componentMap[ref.getId()]));
+    references.forEach(ref => ref.referTo(componentMap.get(ref.getId())));
     return top;
 }

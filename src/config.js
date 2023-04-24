@@ -17,13 +17,15 @@ export class Config {
         this.parserMap.set(tagName, parser);
     }
     getParser(tagName) {
-        return this.parserMap.get(tagName);
+        const parser = this.parserMap.get(tagName);
+        return parser == undefined ? null : parser;
     }
     putAttributeMapping(prefix, fieldName, attributeName) {
         this.attributeMappingMap.set(prefix + "." + fieldName, attributeName);
     }
     getAttributeName(prefix, fieldName) {
-        return this.attributeMappingMap.get(prefix + "." + fieldName);
+        const attributeName = this.attributeMappingMap.get(prefix + "." + fieldName);
+        return attributeName == undefined ? null : attributeName;
     }
     getAttributes(prefix) {
         const attributes = [];
