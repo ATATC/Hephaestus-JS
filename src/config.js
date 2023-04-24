@@ -18,20 +18,20 @@ export class Config {
     }
     getParser(tagName) {
         const parser = this.parserMap.get(tagName);
-        return parser == undefined ? null : parser;
+        return parser === undefined ? null : parser;
     }
     putAttributeMapping(prefix, fieldName, attributeName) {
         this.attributeMappingMap.set(prefix + "." + fieldName, attributeName);
     }
     getAttributeName(prefix, fieldName) {
         const attributeName = this.attributeMappingMap.get(prefix + "." + fieldName);
-        return attributeName == undefined ? null : attributeName;
+        return attributeName === undefined ? null : attributeName;
     }
     getAttributes(prefix) {
         const attributes = [];
         this.attributeMappingMap.forEach((attrName, index) => {
             const [pre, field] = index.split(".");
-            if (pre == prefix)
+            if (pre === prefix)
                 attributes.push([field, attrName]);
         });
         return attributes;

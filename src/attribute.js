@@ -3,7 +3,7 @@ import { parseExpr } from "./hephaestus.js";
 import { Config } from "./config.js";
 export function Attribute(name = "") {
     return function (target, propertyKey) {
-        Config.getInstance().putAttributeMapping(target.constructor.name, propertyKey, name == "" ? propertyKey : name);
+        Config.getInstance().putAttributeMapping(target.constructor.name, propertyKey, name === "" ? propertyKey : name);
     };
 }
 export function extractAttributes(component) {
@@ -16,7 +16,7 @@ export function extractAttributes(component) {
         if (attributeVal != null)
             attributes += attributeName + "=" + attributeVal + ";";
     }
-    if (attributes.length == 1)
+    if (attributes.length === 1)
         return "";
     return attributes + ")";
 }

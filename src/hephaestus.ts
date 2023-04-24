@@ -4,7 +4,7 @@ import {Config} from "./config.js";
 import {implementationOfCompilable} from "./component/compilable.js";
 
 export function parseExpr(expr: string): Component | null {
-    if (expr == null || expr == "") return null;
+    if (expr == null || expr === "") return null;
     if (Text.wrappedBy(expr, "[", "]")) return MultiComponent.PARSER(expr.substring(1, expr.length - 1));
     const temp = new UnsupportedComponent();
     temp.fullExpr = expr;
@@ -17,13 +17,13 @@ export function parseExpr(expr: string): Component | null {
         temp.inner = expr.substring(i + 1, expr.length - 1);
     }
     if (Text.wrappedBy(expr, '{', '}')) {
-        if (temp.tagName == "") return Text.PARSER(temp.inner);
+        if (temp.tagName === "") return Text.PARSER(temp.inner);
         temp.tagName = temp.tagName.replaceAll(" ", "");
         const parser = Config.getInstance().getParser(temp.tagName);
         return parser == null ? temp : parser(temp.inner);
     }
     if (!Text.wrappedBy(expr, '<', '>')) throw new ComponentNotClosed(expr);
-    if (temp.tagName == "") return new Skeleton(Text.decompile(temp.inner));
+    if (temp.tagName === "") return new Skeleton(Text.decompile(temp.inner));
     const skeleton = Skeleton.PARSER(temp.inner);
     skeleton.setName(Text.decompile(temp.tagName));
     return skeleton;
@@ -38,16 +38,16 @@ export function listTagNames(): string[] {
 }
 
 export function clean(expr: string): string {
-    if (expr == null || expr == "") return "";
+    if (expr == null || expr === "") return "";
     let f = 0;
     let builder = "";
     for (let i = 0; i < expr.length; i++) {
         const bit = expr.charAt(i);
         if (Text.charAtEqualsAny(expr, i, '{', '<')) f = 1;
-        else if (f == 1 && Text.charAtEquals(expr, i, ':')) f = 2;
-        else if (f == 2 && Text.charAtEquals(expr, i, '(')) f = 3;
+        else if (f === 1 && Text.charAtEquals(expr, i, ':')) f = 2;
+        else if (f === 2 && Text.charAtEquals(expr, i, '(')) f = 3;
         else if (Text.charAtEqualsAny(expr, i, '}', '>')) f = 0;
-        if (f != 1 && (bit == '\n' || bit == ' ')) continue;
+        if (f !== 1 && (bit === '\n' || bit === ' ')) continue;
         builder += bit;
     }
     return builder;

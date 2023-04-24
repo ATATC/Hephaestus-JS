@@ -27,7 +27,7 @@ export class Config {
 
     public getParser(tagName: string): ((expr: string) => Component) | null {
         const parser = this.parserMap.get(tagName);
-        return parser == undefined ? null : parser;
+        return parser === undefined ? null : parser;
     }
 
     public putAttributeMapping(prefix: string, fieldName: string, attributeName: string): void {
@@ -36,14 +36,14 @@ export class Config {
 
     public getAttributeName(prefix: string, fieldName: string): string | null {
         const attributeName = this.attributeMappingMap.get(prefix + "." + fieldName);
-        return attributeName == undefined ? null : attributeName;
+        return attributeName === undefined ? null : attributeName;
     }
 
     public getAttributes(prefix: string): [string, string][] {
         const attributes: [string, string][] = [];
         this.attributeMappingMap.forEach((attrName, index) => {
             const [pre, field] = index.split(".");
-            if (pre == prefix) attributes.push([field, attrName]);
+            if (pre === prefix) attributes.push([field, attrName]);
         });
         return attributes;
     }

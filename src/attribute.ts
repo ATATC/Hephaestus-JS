@@ -4,7 +4,7 @@ import {Config} from "./config.js";
 
 export function Attribute(name: string = ""): Function {
     return function (target: any, propertyKey: string) {
-        Config.getInstance().putAttributeMapping(target.constructor.name, propertyKey, name == "" ? propertyKey : name);
+        Config.getInstance().putAttributeMapping(target.constructor.name, propertyKey, name === "" ? propertyKey : name);
     }
 }
 
@@ -16,7 +16,7 @@ export function extractAttributes(component: Component): string {
         const attributeVal = Reflect.get(component, field);
         if (attributeVal != null) attributes += attributeName + "=" + attributeVal + ";";
     }
-    if (attributes.length == 1) return "";
+    if (attributes.length === 1) return "";
     return attributes + ")";
 }
 

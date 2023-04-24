@@ -156,18 +156,18 @@ export class Text extends Component {
     }
 
     public static charAtEquals(s: string, i: number, c: string): boolean {
-        const e = s.charAt(i) == c;
-        if (i > 0) return e && s.charAt(i - 1) != Text.COMPILER_CHARACTER;
-        if (c == Text.COMPILER_CHARACTER && s.length > 1) return e && s.charAt(1) != Text.COMPILER_CHARACTER;
+        const e = s.charAt(i) === c;
+        if (i > 0) return e && s.charAt(i - 1) !== Text.COMPILER_CHARACTER;
+        if (c === Text.COMPILER_CHARACTER && s.length > 1) return e && s.charAt(1) !== Text.COMPILER_CHARACTER;
         return e;
     }
 
     public static charAtEqualsAny(s: string, i: number, ...cs: string[]): boolean {
         const bit = s.charAt(i);
         for (let c of cs) {
-            if (bit != c) continue;
-            if (i > 0) return s.charAt(i - 1) != Text.COMPILER_CHARACTER;
-            if (c == Text.COMPILER_CHARACTER && s.length > 1) return s.charAt(1) != Text.COMPILER_CHARACTER;
+            if (bit !== c) continue;
+            if (i > 0) return s.charAt(i - 1) !== Text.COMPILER_CHARACTER;
+            if (c === Text.COMPILER_CHARACTER && s.length > 1) return s.charAt(1) !== Text.COMPILER_CHARACTER;
             return true;
         }
         return false;
@@ -189,8 +189,8 @@ export class Text extends Component {
         let depth = 0;
         let startIndex = -1;
         for (let i = 0; i < s.length; i++) {
-            if (Text.charAtEquals(s, i, open) && depth++ == requiredDepth) startIndex = i;
-            else if (Text.charAtEquals(s, i, close) && --depth == requiredDepth) return [startIndex, i];
+            if (Text.charAtEquals(s, i, open) && depth++ === requiredDepth) startIndex = i;
+            else if (Text.charAtEquals(s, i, close) && --depth === requiredDepth) return [startIndex, i];
         }
         return [startIndex, -1];
     }
@@ -279,7 +279,7 @@ export class MultiComponent extends Component implements Iterable<Component> {
     }
 
     public isEmpty(): boolean {
-        return this.components.length == 0;
+        return this.components.length === 0;
     }
 
     public contains(component: Component): boolean {
@@ -452,14 +452,14 @@ class Serial {
 
     public equals(o: any | Serial, sequential: boolean): boolean {
         if (sequential == null) {
-            if (this == o) return true;
+            if (this === o) return true;
             if (o instanceof Serial) return this.equals(o, true);
             return false;
         }
-        if (this.args.length != o.args.length) return false;
+        if (this.args.length !== o.args.length) return false;
         for (let i = 0; i < this.args.length; i++) {
             if (sequential) {
-                if (this.args[i] != o.args[i]) return false;
+                if (this.args[i] !== o.args[i]) return false;
             } else if (!o.args.includes(this.args[i])) return false;
         }
         return true;
