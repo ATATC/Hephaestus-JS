@@ -27,13 +27,13 @@ export function ComponentConfig(tagName: string): Function {
 
 export abstract class Component {
     @Attribute()
-    protected id: string;
-    protected style: Style = new Style();
+    protected id: string | null;
+    protected style: Style | null = new Style();
 
     protected constructor() {
     }
 
-    public getConfig(): ComponentConfigRecord {
+    public getConfig(): ComponentConfigRecord | null {
         return Object.getPrototypeOf(this).config;
     }
 
@@ -46,15 +46,15 @@ export abstract class Component {
         this.id = id;
     }
 
-    public getId(): string {
+    public getId(): string | null {
         return this.id;
     }
 
-    public setStyle(style: Style): void {
+    public setStyle(style: Style | null): void {
         this.style = style;
     }
 
-    public getStyle(): Style {
+    public getStyle(): Style | null {
         return this.style;
     }
 
@@ -200,19 +200,21 @@ export class Text extends Component {
 export class Ref extends Component {
     public static PARSER: (expr) => Ref = expr => new Ref(expr);
 
-    protected to: Component;
+    protected to: Component | null;
 
-    public constructor(id: string) {
+    public constructor(id: string | null) {
         super();
         this.setId(id);
     }
 
-    public referTo(real: Component): void {
+    public referTo(real: Component | null): void {
         this.to = real;
     }
 
     public expr(): string {
-        return this.to == null ? "{" + this.getTagName() + ":" + this.getId() + "}" : this.to.expr();
+        if (this.to != null) return this.to.expr();
+        const id = this.getId();
+        return this.generateExpr(id == null ? "" : id);
     }
 }
 
@@ -386,9 +388,9 @@ export class Skeleton extends WrapperComponent implements Compilable {
     protected name: string;
 
     @Attribute()
-    protected component: Component;
+    protected component: Component | null;
 
-    protected parent: Skeleton;
+    protected parent: Skeleton | null;
 
     public constructor(name: string = null) {
         super();
@@ -403,11 +405,11 @@ export class Skeleton extends WrapperComponent implements Compilable {
         return this.name;
     }
 
-    public setComponent(component: Component): void {
+    public setComponent(component: Component | null): void {
         this.component = component;
     }
 
-    public getComponent(): Component {
+    public getComponent(): Component | null {
         return this.component;
     }
 
@@ -486,18 +488,18 @@ export class Version extends WrapperComponent {
 export class HTMLBlock extends Component {
     public static PARSER: (expr) => HTMLBlock = expr => new HTMLBlock(<Text> parseExpr(expr));
 
-    protected html: Text;
+    protected html: Text | null;
 
-    public constructor(html: Text = null) {
+    public constructor(html: Text | null = null) {
         super();
         this.setHTML(html);
     }
 
-    public setHTML(html: Text): void {
+    public setHTML(html: Text | null): void {
         this.html = html;
     }
 
-    public getHTML(): Text {
+    public getHTML(): Text | null {
         return this.html;
     }
 
@@ -510,18 +512,18 @@ export class HTMLBlock extends Component {
 export class MDBlock extends Component {
     public static PARSER: (expr) => MDBlock = expr => new MDBlock(<Text> parseExpr(expr));
 
-    protected markdown: Text;
+    protected markdown: Text | null;
 
-    public constructor(markdown: Text = null) {
+    public constructor(markdown: Text | null = null) {
         super();
         this.setMarkdown(markdown);
     }
 
-    public setMarkdown(markdown: Text): void {
+    public setMarkdown(markdown: Text | null): void {
         this.markdown = markdown;
     }
 
-    public getMarkdown(): Text {
+    public getMarkdown(): Text | null {
         return this.markdown;
     }
 

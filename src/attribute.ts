@@ -20,7 +20,7 @@ export function extractAttributes(component: Component): string {
     return attributes + ")";
 }
 
-export function searchAttributesInExpr(expr: string): [string, string] {
+export function searchAttributesInExpr(expr: string): [string, string] | null {
     if (!Text.startsWith(expr, "(")) return null;
     const endIndex = Text.indexOf(expr, ")", 1) + 1;
     if (endIndex < 1) return null;
@@ -37,7 +37,7 @@ export function injectField(field: string, instance: object, value: string): voi
     Reflect.set(instance, field, parseExpr(value));
 }
 
-export function getAttribute(attributesExpr: string, attributeName: string): string {
+export function getAttribute(attributesExpr: string, attributeName: string): string | null {
     if (attributesExpr.length < attributeName.length) return null;
     let startIndex = attributesExpr.indexOf(attributeName);
     if (startIndex < 0) return null;
