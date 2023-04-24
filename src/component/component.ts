@@ -438,7 +438,7 @@ export class Skeleton extends WrapperComponent implements Compilable {
 }
 
 class Serial {
-    protected args: any[];
+    protected readonly args: any[];
 
     public constructor(...args: any[]) {
         this.args = args;
