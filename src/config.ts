@@ -8,7 +8,7 @@ export class Config {
     }
 
     private readonly parserMap: Map<string, (expr: string) => Component> = new Map<string, (expr: string) => Component>();
-    private readonly attributeMappingMap: Map<string, string> = new Map<string, string>();
+    private readonly attributeMappingMap: Map<string, [string, (v: string) => any]> = new Map<string, [string, (v: string) => any]>();
 
     private constructor() {
     }
@@ -30,20 +30,20 @@ export class Config {
         return parser === undefined ? null : parser;
     }
 
-    public putAttributeMapping(prefix: string, fieldName: string, attributeName: string): void {
-        this.attributeMappingMap.set(prefix + "." + fieldName, attributeName);
+    public putAttributeMapping(prefix: string, fieldName: string, attributeName: string, targetConstructor: (v: string) => any): void {
+        this.attributeMappingMap.set(prefix + "." + fieldName, [attributeName, targetConstructor]);
     }
 
-    public getAttributeName(prefix: string, fieldName: string): string | null {
-        const attributeName = this.attributeMappingMap.get(prefix + "." + fieldName);
-        return attributeName === undefined ? null : attributeName;
+    public getAttributeName(prefix: string, fieldName: string): [string, (v: string) => any] | null {
+        const attrInfo = this.attributeMappingMap.get(prefix + "." + fieldName);
+        return attrInfo === undefined ? null : attrInfo;
     }
 
-    public getAttributes(prefix: string): [string, string][] {
-        const attributes: [string, string][] = [];
-        this.attributeMappingMap.forEach((attrName, index) => {
+    public getAttributes(prefix: string): [string, string, (v: string) => any][] {
+        const attributes: [string, string, (v: string) => any][] = [];
+        this.attributeMappingMap.forEach(([attrName, targetConstructor], index) => {
             const [pre, field] = index.split(".");
-            if (pre === prefix) attributes.push([field, attrName]);
+            if (pre === prefix) attributes.push([field, attrName, targetConstructor]);
         });
         return attributes;
     }
