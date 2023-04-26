@@ -5,15 +5,13 @@ export function Attribute(name = "", targetConstructor = v => v) {
         Config.getInstance().putAttributeMapping(target.constructor.name, propertyKey, name === "" ? propertyKey : name, targetConstructor);
     };
 }
+// Fixme: cannot detect attributes from super class
 export function extractAttributes(component) {
     let attributes = "(";
-    for (let field of Object.keys(component)) {
-        const attributeInfo = Config.getInstance().getAttributeName(Object.getPrototypeOf(component).constructor.name, field);
-        if (attributeInfo == null)
-            continue;
+    for (let [field, attributeName] of Config.getInstance().getAttributes(Object.getPrototypeOf(component).constructor.name)) {
         const attributeVal = Reflect.get(component, field);
         if (attributeVal != null)
-            attributes += attributeInfo[0] + "=" + attributeVal + ";";
+            attributes += attributeName + "=" + attributeVal + ";";
     }
     if (attributes.length === 1)
         return "";
@@ -45,6 +43,7 @@ export function getAttribute(attributesExpr, attributeName) {
         return attributesExpr.substring(startIndex);
     return attributesExpr.substring(startIndex, endIndex);
 }
+// Fixme: cannot detect attributes from super class
 export function injectAttributes(component, attributesExpr) {
     for (let [field, attributeName, targetConstructor] of Config.getInstance().getAttributes(Object.getPrototypeOf(component).constructor.name)) {
         const val = getAttribute(attributesExpr, attributeName);
