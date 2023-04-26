@@ -20,19 +20,19 @@ export class Config {
         const parser = this.parserMap.get(tagName);
         return parser === undefined ? null : parser;
     }
-    putAttributeMapping(prefix, fieldName, attributeName) {
-        this.attributeMappingMap.set(prefix + "." + fieldName, attributeName);
+    putAttributeMapping(prefix, fieldName, attributeName, targetConstructor) {
+        this.attributeMappingMap.set(prefix + "." + fieldName, [attributeName, targetConstructor]);
     }
     getAttributeName(prefix, fieldName) {
-        const attributeName = this.attributeMappingMap.get(prefix + "." + fieldName);
-        return attributeName === undefined ? null : attributeName;
+        const attributeInfo = this.attributeMappingMap.get(prefix + "." + fieldName);
+        return attributeInfo === undefined ? null : attributeInfo;
     }
     getAttributes(prefix) {
         const attributes = [];
-        this.attributeMappingMap.forEach((attrName, index) => {
+        this.attributeMappingMap.forEach(([attrName, targetConstructor], index) => {
             const [pre, field] = index.split(".");
             if (pre === prefix)
-                attributes.push([field, attrName]);
+                attributes.push([field, attrName, targetConstructor]);
         });
         return attributes;
     }

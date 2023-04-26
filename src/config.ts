@@ -35,8 +35,8 @@ export class Config {
     }
 
     public getAttributeName(prefix: string, fieldName: string): [string, (v: string) => any] | null {
-        const attrInfo = this.attributeMappingMap.get(prefix + "." + fieldName);
-        return attrInfo === undefined ? null : attrInfo;
+        const attributeInfo = this.attributeMappingMap.get(prefix + "." + fieldName);
+        return attributeInfo === undefined ? null : attributeInfo;
     }
 
     public getAttributes(prefix: string): [string, string, (v: string) => any][] {

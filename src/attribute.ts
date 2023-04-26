@@ -10,10 +10,10 @@ export function Attribute(name: string = "", targetConstructor: (v: string) => a
 export function extractAttributes(component: Component): string {
     let attributes = "(";
     for (let field of Object.keys(component)) {
-        const attributeName = Config.getInstance().getAttributeName(Object.getPrototypeOf(component).constructor.name, field);
-        if (attributeName == null) continue;
+        const attributeInfo = Config.getInstance().getAttributeName(Object.getPrototypeOf(component).constructor.name, field);
+        if (attributeInfo == null) continue;
         const attributeVal = Reflect.get(component, field);
-        if (attributeVal != null) attributes += attributeName + "=" + attributeVal + ";";
+        if (attributeVal != null) attributes += attributeInfo[0] + "=" + attributeVal + ";";
     }
     if (attributes.length === 1) return "";
     return attributes + ")";

@@ -408,7 +408,7 @@ export class Skeleton extends WrapperComponent {
     }
 }
 __decorate([
-    Attribute(),
+    Attribute("", parseExpr),
     __metadata("design:type", Object)
 ], Skeleton.prototype, "component", void 0);
 class Serial {
