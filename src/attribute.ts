@@ -1,5 +1,6 @@
 import {Component, Text} from "./component/component.js";
 import {Config} from "./config.js";
+import {forEachDeclaredField} from "./utils.js";
 
 export function Attribute(name: string = "", targetConstructor: (v: string) => any = v => v): Function {
     return function (target: any, propertyKey: string) {
@@ -7,15 +8,13 @@ export function Attribute(name: string = "", targetConstructor: (v: string) => a
     }
 }
 
-// Fixme: cannot detect attributes from super class
 export function extractAttributes(component: Component): string {
     let attributes = "(";
-    for (let [field, attributeName] of Config.getInstance().getAttributes(Object.getPrototypeOf(component).constructor.name)) {
+    forEachDeclaredField(Object.getPrototypeOf(component), (field, attributeName) => {
         const attributeVal = Reflect.get(component, field);
         if (attributeVal != null) attributes += attributeName + "=" + attributeVal + ";";
-    }
-    if (attributes.length === 1) return "";
-    return attributes + ")";
+    });
+    return attributes.length === 1 ? "" : attributes + ")";
 }
 
 export function searchAttributesInExpr(expr: string): [string, string] | null {
@@ -41,11 +40,9 @@ export function getAttribute(attributesExpr: string, attributeName: string): str
     return attributesExpr.substring(startIndex, endIndex);
 }
 
-// Fixme: cannot detect attributes from super class
 export function injectAttributes(component: Component, attributesExpr: string): void {
-    for (let [field, attributeName, targetConstructor] of Config.getInstance().getAttributes(Object.getPrototypeOf(component).constructor.name)) {
+    forEachDeclaredField(Object.getPrototypeOf(component), (field, attributeName, targetConstructor) => {
         const val = getAttribute(attributesExpr, attributeName);
-        if (val == null) continue;
-        injectField(field, component, val, targetConstructor);
-    }
+        if (val != null) injectField(field, component, val, targetConstructor);
+    });
 }

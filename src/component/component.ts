@@ -391,7 +391,7 @@ export class Skeleton extends WrapperComponent implements Compilable {
 
     protected name: string = "unnamed";
 
-    @Attribute("", parseExpr)
+    @Attribute(undefined, parseExpr)
     protected component: Component | null = null;
 
     protected parent: Skeleton | null = null;

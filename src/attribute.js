@@ -1,21 +1,19 @@
 import { Text } from "./component/component.js";
 import { Config } from "./config.js";
+import { forEachDeclaredField } from "./utils.js";
 export function Attribute(name = "", targetConstructor = v => v) {
     return function (target, propertyKey) {
         Config.getInstance().putAttributeMapping(target.constructor.name, propertyKey, name === "" ? propertyKey : name, targetConstructor);
     };
 }
-// Fixme: cannot detect attributes from super class
 export function extractAttributes(component) {
     let attributes = "(";
-    for (let [field, attributeName] of Config.getInstance().getAttributes(Object.getPrototypeOf(component).constructor.name)) {
+    forEachDeclaredField(Object.getPrototypeOf(component), (field, attributeName) => {
         const attributeVal = Reflect.get(component, field);
         if (attributeVal != null)
             attributes += attributeName + "=" + attributeVal + ";";
-    }
-    if (attributes.length === 1)
-        return "";
-    return attributes + ")";
+    });
+    return attributes.length === 1 ? "" : attributes + ")";
 }
 export function searchAttributesInExpr(expr) {
     if (!Text.startsWith(expr, "("))
@@ -43,13 +41,11 @@ export function getAttribute(attributesExpr, attributeName) {
         return attributesExpr.substring(startIndex);
     return attributesExpr.substring(startIndex, endIndex);
 }
-// Fixme: cannot detect attributes from super class
 export function injectAttributes(component, attributesExpr) {
-    for (let [field, attributeName, targetConstructor] of Config.getInstance().getAttributes(Object.getPrototypeOf(component).constructor.name)) {
+    forEachDeclaredField(Object.getPrototypeOf(component), (field, attributeName, targetConstructor) => {
         const val = getAttribute(attributesExpr, attributeName);
-        if (val == null)
-            continue;
-        injectField(field, component, val, targetConstructor);
-    }
+        if (val != null)
+            injectField(field, component, val, targetConstructor);
+    });
 }
 //# sourceMappingURL=attribute.js.map
