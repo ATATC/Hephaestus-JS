@@ -1,4 +1,3 @@
-import {Style} from "../style.js";
 import {HephaestusRuntimeException, MissingFieldException} from "../exception.js";
 import {parseExpr} from "../hephaestus.js";
 import {Attribute, extractAttributes} from "../attribute.js";
@@ -29,7 +28,6 @@ export abstract class Component {
     protected proxy: Ref | null = null;
     @Attribute()
     protected id: string | null = null;
-    protected style: Style | null = new Style();
 
     protected constructor() {
     }
@@ -61,14 +59,6 @@ export abstract class Component {
 
     public getId(): string | null {
         return this.id;
-    }
-
-    public setStyle(style: Style | null): void {
-        this.style = style;
-    }
-
-    public getStyle(): Style | null {
-        return this.style;
     }
 
     public forEach(action: (component: Component, depth: number) => void, depth: number = 0): void {
