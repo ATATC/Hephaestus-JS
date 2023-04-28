@@ -443,47 +443,23 @@ export class Skeleton extends WrapperComponent implements Compilable {
     }
 }
 
-class Serial {
-    protected readonly args: any[];
-
-    public constructor(...args: any[]) {
-        this.args = args;
-    }
-
-    public equals(o: any | Serial, sequential: boolean): boolean {
-        if (sequential == null) {
-            if (this === o) return true;
-            if (o instanceof Serial) return this.equals(o, true);
-            return false;
-        }
-        if (this.args.length !== o.args.length) return false;
-        for (let i = 0; i < this.args.length; i++) {
-            if (sequential) {
-                if (this.args[i] !== o.args[i]) return false;
-            } else if (!o.args.includes(this.args[i])) return false;
-        }
-        return true;
-    }
-}
-
 @ComponentConfig("v")
 export class Version extends WrapperComponent {
-    public readonly Serial = Serial;
-
     public static PARSER: (expr: string) => Version = WrapperComponent.makeParser(Version);
 
-    protected serial: Serial = new Serial("undefined");
+    @Attribute()
+    protected serial: string = "undefined";
 
-    public constructor(serial: Serial | string) {
+    public constructor(serial: string) {
         super();
-        this.setSerial(serial instanceof Serial ? serial : new Serial(serial));
+        this.setSerial(serial);
     }
 
-    public setSerial(serial: Serial): void {
+    public setSerial(serial: string): void {
         this.serial = serial;
     }
 
-    public getSerial(): Serial {
+    public getSerial(): string {
         return this.serial;
     }
 }

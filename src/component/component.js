@@ -411,39 +411,12 @@ __decorate([
     Attribute(undefined, parseExpr),
     __metadata("design:type", Object)
 ], Skeleton.prototype, "component", void 0);
-class Serial {
-    args;
-    constructor(...args) {
-        this.args = args;
-    }
-    equals(o, sequential) {
-        if (sequential == null) {
-            if (this === o)
-                return true;
-            if (o instanceof Serial)
-                return this.equals(o, true);
-            return false;
-        }
-        if (this.args.length !== o.args.length)
-            return false;
-        for (let i = 0; i < this.args.length; i++) {
-            if (sequential) {
-                if (this.args[i] !== o.args[i])
-                    return false;
-            }
-            else if (!o.args.includes(this.args[i]))
-                return false;
-        }
-        return true;
-    }
-}
 let Version = Version_1 = class Version extends WrapperComponent {
-    Serial = Serial;
     static PARSER = WrapperComponent.makeParser(Version_1);
-    serial = new Serial("undefined");
+    serial = "undefined";
     constructor(serial) {
         super();
-        this.setSerial(serial instanceof Serial ? serial : new Serial(serial));
+        this.setSerial(serial);
     }
     setSerial(serial) {
         this.serial = serial;
@@ -452,9 +425,13 @@ let Version = Version_1 = class Version extends WrapperComponent {
         return this.serial;
     }
 };
+__decorate([
+    Attribute(),
+    __metadata("design:type", String)
+], Version.prototype, "serial", void 0);
 Version = Version_1 = __decorate([
     ComponentConfig("v"),
-    __metadata("design:paramtypes", [Object])
+    __metadata("design:paramtypes", [String])
 ], Version);
 export { Version };
 let HTMLBlock = HTMLBlock_1 = class HTMLBlock extends Component {
