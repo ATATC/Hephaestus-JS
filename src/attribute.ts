@@ -17,10 +17,10 @@ export function extractAttributes(component: Component): string {
     return attributes.length === 1 ? "" : attributes + ")";
 }
 
-export function searchAttributesInExpr(expr: string): [string, string] | null {
-    if (!Text.startsWith(expr, "(")) return null;
+export function searchAttributesInExpr(expr: string): [string, string] {
+    if (!Text.startsWith(expr, "(")) return ["", expr];
     const endIndex = Text.indexOf(expr, ")", 1) + 1;
-    if (endIndex < 1) return null;
+    if (endIndex < 1) return ["", expr];
     return [expr.substring(0, endIndex), expr.substring(endIndex)];
 }
 

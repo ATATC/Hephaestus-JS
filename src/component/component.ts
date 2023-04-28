@@ -1,7 +1,7 @@
 import {Style} from "../style.js";
-import {BadFormat, MissingFieldException} from "../exception.js";
+import {HephaestusRuntimeException, MissingFieldException} from "../exception.js";
 import {parseExpr} from "../hephaestus.js";
-import {Attribute, extractAttributes, injectAttributes, searchAttributesInExpr} from "../attribute.js";
+import {Attribute, extractAttributes} from "../attribute.js";
 import {Config} from "../config.js";
 import {Compilable} from "./compilable.js";
 
@@ -26,6 +26,7 @@ export function ComponentConfig(tagName: string): Function {
 }
 
 export abstract class Component {
+    protected proxy: Ref | null = null;
     @Attribute()
     protected id: string | null = null;
     protected style: Style | null = new Style();
@@ -40,6 +41,18 @@ export abstract class Component {
     public getTagName(): string {
         const config = this.getConfig();
         return config == null ? "undefined" : config.tagName();
+    }
+
+    public isProxy(): boolean {
+        return this.proxy != null;
+    }
+
+    public setProxy(proxy: Ref | null) {
+        this.proxy = proxy;
+    }
+
+    public getProxy(): Ref | null {
+        return this.proxy;
     }
 
     public setId(id: string | null): void {
@@ -67,14 +80,20 @@ export abstract class Component {
     }
 
     protected generateExpr(inner: string): string {
-        return "{" + this.getTagName() + ":" + extractAttributes(this) + inner + "}";
+        return this.proxy == null ? "{" + this.getTagName() + ":" + extractAttributes(this) + inner + "}" : this.proxy.expr();
     }
 
     public abstract expr(): string;
+
+    public toString(): string {
+        return this.expr();
+    };
+
+    public equals(o: any): boolean {
+        if (o instanceof Component) return this.expr() === o.expr();
+        return false;
+    }
 }
-Component.prototype.toString = function (): string {
-    return this.expr();
-};
 
 export class UnsupportedComponent extends Component {
     public tagName: string = "undefined";
@@ -185,14 +204,37 @@ export class Text extends Component {
         return Text.startsWith(s, start) && Text.endsWith(s, end);
     }
 
-    public static pairBrackets(s: string, open: string, close: string, requiredDepth: number = 0): [number, number] {
+    public static matchBrackets(s: string, open: string, close: string | null = null, requiredDepth: number = 0): [number, number] {
         let depth = 0;
         let startIndex = -1;
         for (let i = 0; i < s.length; i++) {
             if (Text.charAtEquals(s, i, open) && depth++ === requiredDepth) startIndex = i;
-            else if (Text.charAtEquals(s, i, close) && --depth === requiredDepth) return [startIndex, i];
+            else if (Text.charAtEquals(s, i, close == null ? open : close) && --depth === requiredDepth) return [startIndex, i];
         }
         return [startIndex, -1];
+    }
+
+    public static pairBracket(b: string): string {
+        switch (b) {
+            case '(':
+                return ')';
+            case '[':
+                return ']';
+            case '{':
+                return '}';
+            case '<':
+                return '>';
+            case ')':
+                return '(';
+            case ']':
+                return '[';
+            case '}':
+                return '{';
+            case '>':
+                return '<';
+            default:
+                throw new HephaestusRuntimeException("Not a bracket: " + b + ".");
+        }
     }
 }
 
@@ -212,30 +254,22 @@ export class Ref extends Component {
     }
 
     public expr(): string {
-        if (this.to != null) return this.to.expr();
-        const id = this.getId();
-        return this.generateExpr(id == null ? "" : id);
+        return this.to == null ? this.generateExpr("") : this.to.expr();
     }
 }
 
 export class MultiComponent extends Component implements Iterable<Component> {
     public static PARSER: (expr: string) => MultiComponent = expr => {
-        let open, close;
-        if (Text.wrappedBy(expr, "{", "}")) {
-            open = "{";
-            close = "}";
-        } else if (Text.wrappedBy(expr, "<", ">")) {
-            open = "<";
-            close = ">";
-        } else throw new BadFormat("Unrecognized format.", expr);
-        let [start, end] = Text.pairBrackets(expr, open, close);
+        let open = expr.charAt(0);
+        let [start, end] = Text.matchBrackets(expr, open, Text.pairBracket(open));
         const components = [];
         while (start >= 0 && end++ >= 0) {
             const component = parseExpr(expr.substring(start, end));
             if (component == null) continue;
             components.push(component);
             expr = expr.substring(end);
-            [start, end] = Text.pairBrackets(expr, open, close);
+            if (expr.length === 0) break;
+            [start, end] = Text.matchBrackets(expr, open = expr.charAt(0), Text.pairBracket(open));
         }
         return new MultiComponent(...components);
     };
@@ -371,14 +405,7 @@ export abstract class WrapperComponent extends Component {
     public static makeParser <C extends WrapperComponent> (constructor: Function): (expr: string) => C {
         return expr => {
             const component = Object.create(constructor.prototype);
-            const attributesAndBody = searchAttributesInExpr(expr);
-            let attributesExpr, bodyExpr;
-            if (attributesAndBody == null) bodyExpr = expr;
-            else {
-                [attributesExpr, bodyExpr] = attributesAndBody;
-                injectAttributes(component, attributesExpr);
-            }
-            const bodyComponent = parseExpr(bodyExpr);
+            const bodyComponent = parseExpr(expr);
             if (bodyComponent != null) component.setChildren(bodyComponent instanceof  MultiComponent ? bodyComponent : new MultiComponent(bodyComponent));
             else component.setChildren(new MultiComponent());
             return component;
