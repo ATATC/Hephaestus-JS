@@ -2,6 +2,7 @@ import { MultiComponent, Ref, Skeleton, Text, UnsupportedComponent } from "./com
 import { ComponentNotClosed } from "./exception.js";
 import { Config } from "./config.js";
 import { implementationOfCompilable } from "./component/compilable.js";
+import { injectAttributes, searchAttributesInExpr } from "./attribute.js";
 export function parseExpr(expr) {
     if (expr == null || expr === "")
         return null;
@@ -18,18 +19,23 @@ export function parseExpr(expr) {
         temp.tagName = expr.substring(1, i);
         temp.inner = expr.substring(i + 1, expr.length - 1);
     }
+    const [attributesExpr, bodyExpr] = searchAttributesInExpr(temp.inner);
+    temp.inner = bodyExpr;
     if (Text.wrappedBy(expr, '{', '}')) {
         if (temp.tagName === "")
             return Text.PARSER(temp.inner);
         temp.tagName = temp.tagName.replaceAll(" ", "");
         const parser = Config.getInstance().getParser(temp.tagName);
-        return parser == null ? temp : parser(temp.inner);
+        const component = parser == null ? temp : parser(temp.inner);
+        injectAttributes(component, attributesExpr);
+        return component;
     }
     if (!Text.wrappedBy(expr, '<', '>'))
         throw new ComponentNotClosed(expr);
     if (temp.tagName === "")
         return new Skeleton(Text.decompile(temp.inner));
     const skeleton = Skeleton.PARSER(temp.inner);
+    injectAttributes(skeleton, attributesExpr);
     skeleton.setName(Text.decompile(temp.tagName));
     return skeleton;
 }
@@ -75,6 +81,21 @@ export function compileComponentTree(top) {
             component.compile(refs => references.push(refs));
     });
     references.forEach(ref => ref.referTo(componentMap.get(ref.getId())));
+    return top;
+}
+export function reduceRedundancy(top) {
+    const componentSet = new Set();
+    let idIter = 0;
+    top.parallelTraversal((component) => {
+        if (componentSet.has(component)) {
+            for (let c of componentSet)
+                if (c.equals(component))
+                    c.setId(idIter.toString());
+            component.setProxy(new Ref((idIter++).toString()));
+        }
+        else
+            componentSet.add(component);
+    });
     return top;
 }
 //# sourceMappingURL=hephaestus.js.map

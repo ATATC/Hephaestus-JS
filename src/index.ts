@@ -15,6 +15,3 @@ export {
     parse,
     parseExpr
 } from "./hephaestus.js";
-export {
-    Style
-} from "./style.js";

@@ -8,10 +8,9 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 var Ref_1, Version_1, HTMLBlock_1, MDBlock_1;
-import { Style } from "../style.js";
-import { BadFormat, MissingFieldException } from "../exception.js";
+import { HephaestusRuntimeException, MissingFieldException } from "../exception.js";
 import { parseExpr } from "../hephaestus.js";
-import { Attribute, extractAttributes, injectAttributes, searchAttributesInExpr } from "../attribute.js";
+import { Attribute, extractAttributes } from "../attribute.js";
 import { Config } from "../config.js";
 class ComponentConfigRecord {
     _tagName;
@@ -31,8 +30,8 @@ export function ComponentConfig(tagName) {
     };
 }
 export class Component {
+    proxy = null;
     id = null;
-    style = new Style();
     constructor() {
     }
     getConfig() {
@@ -42,17 +41,20 @@ export class Component {
         const config = this.getConfig();
         return config == null ? "undefined" : config.tagName();
     }
+    isProxy() {
+        return this.proxy != null;
+    }
+    setProxy(proxy) {
+        this.proxy = proxy;
+    }
+    getProxy() {
+        return this.proxy;
+    }
     setId(id) {
         this.id = id;
     }
     getId() {
         return this.id;
-    }
-    setStyle(style) {
-        this.style = style;
-    }
-    getStyle() {
-        return this.style;
     }
     forEach(action, depth = 0) {
         action(this, depth);
@@ -61,16 +63,22 @@ export class Component {
         action(this, depth);
     }
     generateExpr(inner) {
-        return "{" + this.getTagName() + ":" + extractAttributes(this) + inner + "}";
+        return this.proxy == null ? "{" + this.getTagName() + ":" + extractAttributes(this) + inner + "}" : this.proxy.expr();
+    }
+    toString() {
+        return this.expr();
+    }
+    ;
+    equals(o) {
+        if (o instanceof Component)
+            return this.expr() === o.expr();
+        return false;
     }
 }
 __decorate([
     Attribute(),
     __metadata("design:type", Object)
 ], Component.prototype, "id", void 0);
-Component.prototype.toString = function () {
-    return this.expr();
-};
 export class UnsupportedComponent extends Component {
     tagName = "undefined";
     fullExpr = "";
@@ -173,16 +181,38 @@ export class Text extends Component {
     static wrappedBy(s, start, end = start) {
         return Text.startsWith(s, start) && Text.endsWith(s, end);
     }
-    static pairBrackets(s, open, close, requiredDepth = 0) {
+    static matchBrackets(s, open, close = null, requiredDepth = 0) {
         let depth = 0;
         let startIndex = -1;
         for (let i = 0; i < s.length; i++) {
             if (Text.charAtEquals(s, i, open) && depth++ === requiredDepth)
                 startIndex = i;
-            else if (Text.charAtEquals(s, i, close) && --depth === requiredDepth)
+            else if (Text.charAtEquals(s, i, close == null ? open : close) && --depth === requiredDepth)
                 return [startIndex, i];
         }
         return [startIndex, -1];
+    }
+    static pairBracket(b) {
+        switch (b) {
+            case '(':
+                return ')';
+            case '[':
+                return ']';
+            case '{':
+                return '}';
+            case '<':
+                return '>';
+            case ')':
+                return '(';
+            case ']':
+                return '[';
+            case '}':
+                return '{';
+            case '>':
+                return '<';
+            default:
+                throw new HephaestusRuntimeException("Not a bracket: " + b + ".");
+        }
     }
 }
 let Ref = Ref_1 = class Ref extends Component {
@@ -196,10 +226,7 @@ let Ref = Ref_1 = class Ref extends Component {
         this.to = real;
     }
     expr() {
-        if (this.to != null)
-            return this.to.expr();
-        const id = this.getId();
-        return this.generateExpr(id == null ? "" : id);
+        return this.to == null ? this.generateExpr("") : this.to.expr();
     }
 };
 Ref = Ref_1 = __decorate([
@@ -209,18 +236,8 @@ Ref = Ref_1 = __decorate([
 export { Ref };
 export class MultiComponent extends Component {
     static PARSER = expr => {
-        let open, close;
-        if (Text.wrappedBy(expr, "{", "}")) {
-            open = "{";
-            close = "}";
-        }
-        else if (Text.wrappedBy(expr, "<", ">")) {
-            open = "<";
-            close = ">";
-        }
-        else
-            throw new BadFormat("Unrecognized format.", expr);
-        let [start, end] = Text.pairBrackets(expr, open, close);
+        let open = expr.charAt(0);
+        let [start, end] = Text.matchBrackets(expr, open, Text.pairBracket(open));
         const components = [];
         while (start >= 0 && end++ >= 0) {
             const component = parseExpr(expr.substring(start, end));
@@ -228,7 +245,9 @@ export class MultiComponent extends Component {
                 continue;
             components.push(component);
             expr = expr.substring(end);
-            [start, end] = Text.pairBrackets(expr, open, close);
+            if (expr.length === 0)
+                break;
+            [start, end] = Text.matchBrackets(expr, open = expr.charAt(0), Text.pairBracket(open));
         }
         return new MultiComponent(...components);
     };
@@ -342,15 +361,7 @@ export class WrapperComponent extends Component {
     static makeParser(constructor) {
         return expr => {
             const component = Object.create(constructor.prototype);
-            const attributesAndBody = searchAttributesInExpr(expr);
-            let attributesExpr, bodyExpr;
-            if (attributesAndBody == null)
-                bodyExpr = expr;
-            else {
-                [attributesExpr, bodyExpr] = attributesAndBody;
-                injectAttributes(component, attributesExpr);
-            }
-            const bodyComponent = parseExpr(bodyExpr);
+            const bodyComponent = parseExpr(expr);
             if (bodyComponent != null)
                 component.setChildren(bodyComponent instanceof MultiComponent ? bodyComponent : new MultiComponent(bodyComponent));
             else

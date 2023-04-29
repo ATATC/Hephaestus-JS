@@ -17,10 +17,10 @@ export function extractAttributes(component) {
 }
 export function searchAttributesInExpr(expr) {
     if (!Text.startsWith(expr, "("))
-        return null;
+        return ["", expr];
     const endIndex = Text.indexOf(expr, ")", 1) + 1;
     if (endIndex < 1)
-        return null;
+        return ["", expr];
     return [expr.substring(0, endIndex), expr.substring(endIndex)];
 }
 export function injectField(field, instance, value, targetConstructor) {
