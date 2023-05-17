@@ -16,7 +16,7 @@
   },
   "license": "The Apache License, Version 2.0",
   "homepage": "https://github.com/ATATCTech/Hephaestus-JS",
-  "main": "./src/index.js",
+  "main": "./src/index.ts",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -25,5 +25,8 @@
   },
   "publishConfig": {
     "access": "public"
+  },
+  "dependencies": {
+    "typescript": "^5.0.4"
   }
 }
