@@ -46,7 +46,7 @@ export abstract class Component {
         return this.proxy != null;
     }
 
-    public setProxy(proxy: Ref | null) {
+    public setProxy(proxy: Ref | null): void {
         this.proxy = proxy;
     }
 
@@ -288,11 +288,11 @@ export class MultiComponent extends Component implements Iterable<Component> {
         this.components = components;
     }
 
-    public forEach(action: (component: Component, depth: number) => void, depth: number = 0) {
+    public forEach(action: (component: Component, depth: number) => void, depth: number = 0): void {
         for (let component of this.components) component.forEach(action, depth);
     }
 
-    public parallelTraversal(action: (component: Component, depth: number) => void, depth: number = 0, components: Component[] = this.components) {
+    public parallelTraversal(action: (component: Component, depth: number) => void, depth: number = 0, components: Component[] = this.components): void {
         const next = [];
         for (let component of components) {
             if (component instanceof WrapperComponent) next.push(...component.getChildren().components);
@@ -391,12 +391,12 @@ export abstract class WrapperComponent extends Component {
         this.children.remove(index);
     }
 
-    public forEach(action: (component: Component, depth: number) => void, depth: number = 0) {
+    public forEach(action: (component: Component, depth: number) => void, depth: number = 0): void {
         super.forEach(action, depth);
         this.getChildren().forEach(action, depth + 1);
     }
 
-    public parallelTraversal(action: (component: Component, depth: number) => void, depth: number = 0) {
+    public parallelTraversal(action: (component: Component, depth: number) => void, depth: number = 0): void {
         super.parallelTraversal(action, depth);
         this.getChildren().parallelTraversal(action, depth + 1);
     }
@@ -418,6 +418,7 @@ export abstract class WrapperComponent extends Component {
     }
 }
 
+// FixMe: This annotation can cause error in `WrapperComponent.makeParser()`.
 @ComponentConfig("sk")
 export class Skeleton extends WrapperComponent implements Compilable {
     public static PARSER: Parser<Skeleton> = WrapperComponent.makeParser(Skeleton);
@@ -459,7 +460,7 @@ export class Skeleton extends WrapperComponent implements Compilable {
         return this.parent;
     }
 
-    public appendChild(child: Component) {
+    public appendChild(child: Component): void {
         if (child instanceof Skeleton) {
             super.appendChild(child);
             child.setParent(this);
@@ -471,7 +472,7 @@ export class Skeleton extends WrapperComponent implements Compilable {
         return (expr.endsWith(":") ? expr.substring(0, expr.length - 1) : expr) + ">";
     }
 
-    public compile(compiler: (...refs: Ref[]) => void) {
+    public compile(compiler: (...refs: Ref[]) => void): void {
         if (this.getComponent() instanceof Ref) compiler(<Ref> this.getComponent());
     }
 }
