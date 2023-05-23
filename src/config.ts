@@ -1,4 +1,4 @@
-import {Component} from "./component/component.js";
+import {Parser} from "./parser.js";
 
 export class Config {
     private static readonly instance: Config = new Config();
@@ -7,7 +7,7 @@ export class Config {
         return Config.instance;
     }
 
-    private readonly parserMap: Map<string, (expr: string) => Component> = new Map<string, (expr: string) => Component>();
+    private readonly parserMap: Map<string, Parser<any>> = new Map<string, Parser<any>>();
     private readonly attributeMappingMap: Map<string, [string, (v: string) => any]> = new Map<string, [string, (v: string) => any]>();
 
     private constructor() {
@@ -21,11 +21,11 @@ export class Config {
         return Array.from(this.parserMap.keys());
     }
 
-    public putParser(tagName: string, parser: (expr: string) => Component): void {
+    public putParser(tagName: string, parser: Parser<any>): void {
         this.parserMap.set(tagName, parser);
     }
 
-    public getParser(tagName: string): ((expr: string) => Component) | null {
+    public getParser(tagName: string): Parser<any> | null {
         const parser = this.parserMap.get(tagName);
         return parser === undefined ? null : parser;
     }

@@ -6,7 +6,7 @@ import {injectAttributes, searchAttributesInExpr} from "./attribute.js";
 
 export function parseExpr(expr: string): Component | null {
     if (expr == null || expr === "") return null;
-    if (Text.wrappedBy(expr, "[", "]")) return MultiComponent.PARSER(expr.substring(1, expr.length - 1));
+    if (Text.wrappedBy(expr, "[", "]")) return MultiComponent.PARSER.parse(expr.substring(1, expr.length - 1));
     const temp = new UnsupportedComponent();
     temp.fullExpr = expr;
     const i = Text.indexOf(expr, ":");
@@ -20,16 +20,16 @@ export function parseExpr(expr: string): Component | null {
     const [attributesExpr, bodyExpr] = searchAttributesInExpr(temp.inner);
     temp.inner = bodyExpr;
     if (Text.wrappedBy(expr, '{', '}')) {
-        if (temp.tagName === "") return Text.PARSER(temp.inner);
+        if (temp.tagName === "") return Text.PARSER.parse(temp.inner);
         temp.tagName = temp.tagName.replaceAll(" ", "");
         const parser = Config.getInstance().getParser(temp.tagName);
-        const component = parser == null ? temp : parser(temp.inner);
+        const component = parser == null ? temp : parser.parse(temp.inner);
         injectAttributes(component, attributesExpr);
         return component;
     }
     if (!Text.wrappedBy(expr, '<', '>')) throw new ComponentNotClosed(expr);
     if (temp.tagName === "") return new Skeleton(Text.decompile(temp.inner));
-    const skeleton = Skeleton.PARSER(temp.inner);
+    const skeleton = Skeleton.PARSER.parse(temp.inner);
     injectAttributes(skeleton, attributesExpr);
     skeleton.setName(Text.decompile(temp.tagName))
     return skeleton;

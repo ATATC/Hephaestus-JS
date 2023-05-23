@@ -3,6 +3,7 @@ import {parseExpr} from "../hephaestus.js";
 import {Attribute, extractAttributes} from "../attribute.js";
 import {Config} from "../config.js";
 import {Compilable} from "./compilable.js";
+import {Parser} from "../parser.js";
 
 class ComponentConfigRecord {
     protected readonly _tagName: string;
@@ -100,7 +101,11 @@ export class UnsupportedComponent extends Component {
 }
 
 export class Text extends Component {
-    public static PARSER: (expr: string) => Text = expr => new Text(Text.decompile(expr));
+    public static PARSER: Parser<Text> = {
+        parse(expr: string): Text {
+            return new Text(Text.decompile(expr));
+        }
+    };
 
     protected text: string = "";
 
@@ -230,7 +235,11 @@ export class Text extends Component {
 
 @ComponentConfig("ref")
 export class Ref extends Component {
-    public static PARSER: (expr: string) => Ref = expr => new Ref(expr);
+    public static PARSER: Parser<Ref> = {
+        parse(expr: string): Ref {
+            return new Ref(expr);
+        }
+    };
 
     protected to: Component | null = null;
 
@@ -249,19 +258,21 @@ export class Ref extends Component {
 }
 
 export class MultiComponent extends Component implements Iterable<Component> {
-    public static PARSER: (expr: string) => MultiComponent = expr => {
-        let open = expr.charAt(0);
-        let [start, end] = Text.matchBrackets(expr, open, Text.pairBracket(open));
-        const components = [];
-        while (start >= 0 && end++ >= 0) {
-            const component = parseExpr(expr.substring(start, end));
-            if (component == null) continue;
-            components.push(component);
-            expr = expr.substring(end);
-            if (expr.length === 0) break;
-            [start, end] = Text.matchBrackets(expr, open = expr.charAt(0), Text.pairBracket(open));
+    public static PARSER: Parser<MultiComponent> = {
+        parse(expr: string): MultiComponent {
+            let open = expr.charAt(0);
+            let [start, end] = Text.matchBrackets(expr, open, Text.pairBracket(open));
+            const components = [];
+            while (start >= 0 && end++ >= 0) {
+                const component = parseExpr(expr.substring(start, end));
+                if (component == null) continue;
+                components.push(component);
+                expr = expr.substring(end);
+                if (expr.length === 0) break;
+                [start, end] = Text.matchBrackets(expr, open = expr.charAt(0), Text.pairBracket(open));
+            }
+            return new MultiComponent(...components);
         }
-        return new MultiComponent(...components);
     };
 
     protected components: Component[] = [];
@@ -392,19 +403,21 @@ export abstract class WrapperComponent extends Component {
         return this.generateExpr(this.getChildren().expr());
     }
 
-    public static makeParser <C extends WrapperComponent> (constructor: Function): (expr: string) => C {
-        return expr => {
-            const component = Object.create(constructor.prototype);
-            const bodyComponent = parseExpr(expr);
-            if (bodyComponent != null) component.setChildren(bodyComponent instanceof  MultiComponent ? bodyComponent : new MultiComponent(bodyComponent));
-            else component.setChildren(new MultiComponent());
-            return component;
+    public static makeParser <C extends WrapperComponent> (constructor: Function): Parser<C> {
+        return {
+            parse(expr: string): C {
+                const component = Object.create(constructor.prototype);
+                const bodyComponent = parseExpr(expr);
+                if (bodyComponent != null) component.setChildren(bodyComponent instanceof  MultiComponent ? bodyComponent : new MultiComponent(bodyComponent));
+                else component.setChildren(new MultiComponent());
+                return component;
+            }
         };
     }
 }
 
 export class Skeleton extends WrapperComponent implements Compilable {
-    public static PARSER: (expr: string) => Skeleton = WrapperComponent.makeParser(Skeleton);
+    public static PARSER: Parser<Skeleton> = WrapperComponent.makeParser(Skeleton);
 
     protected name: string = "unnamed";
 
@@ -462,7 +475,7 @@ export class Skeleton extends WrapperComponent implements Compilable {
 
 @ComponentConfig("v")
 export class Version extends WrapperComponent {
-    public static PARSER: (expr: string) => Version = WrapperComponent.makeParser(Version);
+    public static PARSER: Parser<Version> = WrapperComponent.makeParser(Version);
 
     @Attribute()
     protected serial: string = "undefined";
@@ -483,7 +496,11 @@ export class Version extends WrapperComponent {
 
 @ComponentConfig("html")
 export class HTMLBlock extends Component {
-    public static PARSER: (expr: string) => HTMLBlock = expr => new HTMLBlock(<Text> parseExpr(expr));
+    public static PARSER: Parser<HTMLBlock> = {
+        parse(expr: string): HTMLBlock {
+            return new HTMLBlock(<Text> parseExpr(expr));
+        }
+    };
 
     protected html: Text | null = null;
 
@@ -507,7 +524,11 @@ export class HTMLBlock extends Component {
 
 @ComponentConfig("md")
 export class MDBlock extends Component {
-    public static PARSER: (expr: string) => MDBlock = expr => new MDBlock(<Text> parseExpr(expr));
+    public static PARSER: Parser<MDBlock> = {
+        parse(expr: string): MDBlock {
+            return new MDBlock(<Text> parseExpr(expr));
+        }
+    };
 
     protected markdown: Text | null = null;
 
