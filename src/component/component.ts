@@ -100,6 +100,7 @@ export class UnsupportedComponent extends Component {
     }
 }
 
+@ComponentConfig("t")
 export class Text extends Component {
     public static PARSER: Parser<Text> = {
         parse(expr: string): Text {
@@ -257,6 +258,7 @@ export class Ref extends Component {
     }
 }
 
+@ComponentConfig("mc")
 export class MultiComponent extends Component implements Iterable<Component> {
     public static PARSER: Parser<MultiComponent> = {
         parse(expr: string): MultiComponent {
@@ -416,6 +418,7 @@ export abstract class WrapperComponent extends Component {
     }
 }
 
+@ComponentConfig("sk")
 export class Skeleton extends WrapperComponent implements Compilable {
     public static PARSER: Parser<Skeleton> = WrapperComponent.makeParser(Skeleton);
 

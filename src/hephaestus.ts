@@ -3,6 +3,7 @@ import {ComponentNotClosed} from "./exception.js";
 import {Config} from "./config.js";
 import {implementationOfCompilable} from "./component/compilable.js";
 import {injectAttributes, searchAttributesInExpr} from "./attribute.js";
+import {Constraint} from "./structure.js";
 
 export function parseExpr(expr: string): Component | null {
     if (expr == null || expr === "") return null;
@@ -84,4 +85,8 @@ export function reduceRedundancy(top: Component): Component {
         } else componentSet.add(component);
     });
     return top;
+}
+
+export function satisfies(component: Component, constraint: Constraint): boolean {
+    return constraint.conforms(component);
 }

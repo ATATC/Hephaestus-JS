@@ -1,9 +1,4 @@
-import {parseExpr, Skeleton, Text} from "../src/index.js";
+import {all, parse, satisfies} from "../src/index.js";
 
-const skeleton = new Skeleton("test");
-skeleton.setComponent(new Text("test text"));
-skeleton.setId("skeleton");
-
-const hepxr = skeleton.expr();
-console.log(hepxr);
-console.log((<Skeleton> parseExpr(hepxr)).getComponent());
+const component = parse("[<abc:>{text}]");
+if (component != null) console.log(satisfies(component, all("sk")));
