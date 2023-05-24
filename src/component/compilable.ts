@@ -1,4 +1,4 @@
-import {Ref} from "./component.js";
+import {Ref} from "./component";
 
 export interface Compilable {
     compile(compiler: (...refs: Ref[]) => void): void;

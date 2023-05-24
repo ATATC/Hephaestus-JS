@@ -1,4 +1,4 @@
-import {Parser} from "./parser.js";
+import {Parser} from "./parser";
 
 export class Config {
     private static readonly instance: Config = new Config();

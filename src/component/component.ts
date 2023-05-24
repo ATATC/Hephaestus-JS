@@ -1,9 +1,9 @@
-import {HephaestusRuntimeException, MissingFieldException} from "../exception.js";
-import {parseExpr} from "../hephaestus.js";
-import {Attribute, extractAttributes} from "../attribute.js";
-import {Config} from "../config.js";
-import {Compilable} from "./compilable.js";
-import {Parser} from "../parser.js";
+import {HephaestusRuntimeException, MissingFieldException} from "../exception";
+import {parseExpr} from "../hephaestus";
+import {Attribute, extractAttributes} from "../attribute";
+import {Config} from "../config";
+import {Compilable} from "./compilable";
+import {Parser} from "../parser";
 
 class ComponentConfigRecord {
     protected readonly _tagName: string;
@@ -419,7 +419,7 @@ export abstract class WrapperComponent extends Component {
 }
 
 // FixMe: This annotation can cause error in `WrapperComponent.makeParser()`.
-@ComponentConfig("sk")
+// @ComponentConfig("sk")
 export class Skeleton extends WrapperComponent implements Compilable {
     public static PARSER: Parser<Skeleton> = WrapperComponent.makeParser(Skeleton);
 

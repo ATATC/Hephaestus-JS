@@ -1,9 +1,9 @@
-import {Component, MultiComponent, Ref, Skeleton, Text, UnsupportedComponent} from "./component/component.js";
-import {ComponentNotClosed} from "./exception.js";
-import {Config} from "./config.js";
-import {implementationOfCompilable} from "./component/compilable.js";
-import {injectAttributes, searchAttributesInExpr} from "./attribute.js";
-import {Constraint} from "./structure.js";
+import {Component, MultiComponent, Ref, Skeleton, Text, UnsupportedComponent} from "./component/component";
+import {ComponentNotClosed} from "./exception";
+import {Config} from "./config";
+import {implementationOfCompilable} from "./component/compilable";
+import {injectAttributes, searchAttributesInExpr} from "./attribute";
+import {Constraint} from "./structure";
 
 export function parseExpr(expr: string): Component | null {
     if (expr == null || expr === "") return null;

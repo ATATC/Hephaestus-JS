@@ -1,4 +1,4 @@
-import {Component, MultiComponent, WrapperComponent} from "./component/component.js";
+import {Component, MultiComponent, WrapperComponent} from "./component/component";
 
 export interface Constraint {
     conforms(component: Component): boolean;

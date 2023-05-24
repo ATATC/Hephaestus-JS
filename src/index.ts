@@ -1,12 +1,12 @@
 export {
     Config
-} from "./config.js";
+} from "./config";
 export {
     Attribute
-} from "./attribute.js";
+} from "./attribute";
 export {
     Parser
-} from "./parser.js";
+} from "./parser";
 export {
     Component,
     Text,
@@ -17,7 +17,7 @@ export {
     Version,
     HTMLBlock,
     MDBlock
-} from "./component/component.js";
+} from "./component/component";
 export {
     listTagNames,
     clean,
@@ -26,7 +26,7 @@ export {
     parse,
     parseExpr,
     satisfies
-} from "./hephaestus.js";
+} from "./hephaestus";
 export {
     Constraint,
     ConstraintChain,
@@ -42,4 +42,4 @@ export {
     includesType,
     all,
     allType
-} from "./structure.js";
+} from "./structure";

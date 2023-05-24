@@ -1,6 +1,6 @@
-import {Component, Text} from "./component/component.js";
-import {Config} from "./config.js";
-import {forEachDeclaredField} from "./utils.js";
+import {Component, Text} from "./component/component";
+import {Config} from "./config";
+import {forEachDeclaredField} from "./utils";
 
 export function Attribute(name: string = "", targetConstructor: (v: string) => any = v => v): Function {
     return function (target: any, propertyKey: string) {

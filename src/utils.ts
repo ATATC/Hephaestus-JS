@@ -1,4 +1,4 @@
-import {Config} from "./config.js";
+import {Config} from "./config";
 
 export function forEachDeclaredField(prototype: Function, action: (field: string, attributeName: string, targetConstructor: (v: string) => any) => void): void {
     while (prototype != null) {
