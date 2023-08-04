@@ -25,12 +25,14 @@ export function parseExpr(expr: string): Component | null {
         temp.tagName = temp.tagName.replaceAll(" ", "");
         const parser = Config.getInstance().getParser(temp.tagName);
         const component = parser == null ? temp : parser.parse(temp.inner);
+        if (component == null) return null;
         injectAttributes(component, attributesExpr);
         return component;
     }
     if (!Text.wrappedBy(expr, '<', '>')) throw new ComponentNotClosed(expr);
     if (temp.tagName === "") return new Skeleton(Text.decompile(temp.inner));
     const skeleton = Skeleton.PARSER.parse(temp.inner);
+    if (skeleton == null) return null;
     injectAttributes(skeleton, attributesExpr);
     skeleton.setName(Text.decompile(temp.tagName))
     return skeleton;

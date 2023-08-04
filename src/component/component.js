@@ -90,7 +90,8 @@ export class UnsupportedComponent extends Component {
         return this.fullExpr;
     }
 }
-let Text = Text_1 = class Text extends Component {
+export let Text = class Text extends Component {
+    static { Text_1 = this; }
     static PARSER = {
         parse(expr) {
             return new Text_1(Text_1.decompile(expr));
@@ -223,8 +224,8 @@ Text = Text_1 = __decorate([
     ComponentConfig("t"),
     __metadata("design:paramtypes", [Object])
 ], Text);
-export { Text };
-let Ref = Ref_1 = class Ref extends Component {
+export let Ref = class Ref extends Component {
+    static { Ref_1 = this; }
     static PARSER = {
         parse(expr) {
             return new Ref_1(expr);
@@ -246,8 +247,8 @@ Ref = Ref_1 = __decorate([
     ComponentConfig("ref"),
     __metadata("design:paramtypes", [Object])
 ], Ref);
-export { Ref };
-let MultiComponent = MultiComponent_1 = class MultiComponent extends Component {
+export let MultiComponent = class MultiComponent extends Component {
+    static { MultiComponent_1 = this; }
     static PARSER = {
         parse(expr) {
             let open = expr.charAt(0);
@@ -345,7 +346,6 @@ MultiComponent = MultiComponent_1 = __decorate([
     ComponentConfig("mc"),
     __metadata("design:paramtypes", [Component])
 ], MultiComponent);
-export { MultiComponent };
 export class WrapperComponent extends Component {
     children = new MultiComponent();
     constructor(children = new MultiComponent()) {
@@ -446,7 +446,8 @@ __decorate([
     Attribute(undefined, parseExpr),
     __metadata("design:type", Object)
 ], Skeleton.prototype, "component", void 0);
-let Version = Version_1 = class Version extends WrapperComponent {
+export let Version = class Version extends WrapperComponent {
+    static { Version_1 = this; }
     static PARSER = WrapperComponent.makeParser(Version_1);
     serial = "undefined";
     constructor(serial) {
@@ -468,8 +469,8 @@ Version = Version_1 = __decorate([
     ComponentConfig("v"),
     __metadata("design:paramtypes", [String])
 ], Version);
-export { Version };
-let HTMLBlock = HTMLBlock_1 = class HTMLBlock extends Component {
+export let HTMLBlock = class HTMLBlock extends Component {
+    static { HTMLBlock_1 = this; }
     static PARSER = {
         parse(expr) {
             return new HTMLBlock_1(parseExpr(expr));
@@ -494,8 +495,8 @@ HTMLBlock = HTMLBlock_1 = __decorate([
     ComponentConfig("html"),
     __metadata("design:paramtypes", [Object])
 ], HTMLBlock);
-export { HTMLBlock };
-let MDBlock = MDBlock_1 = class MDBlock extends Component {
+export let MDBlock = class MDBlock extends Component {
+    static { MDBlock_1 = this; }
     static PARSER = {
         parse(expr) {
             return new MDBlock_1(parseExpr(expr));
@@ -520,5 +521,4 @@ MDBlock = MDBlock_1 = __decorate([
     ComponentConfig("md"),
     __metadata("design:paramtypes", [Object])
 ], MDBlock);
-export { MDBlock };
 //# sourceMappingURL=component.js.map
