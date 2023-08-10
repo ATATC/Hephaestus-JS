@@ -4,7 +4,7 @@ import {forEachDeclaredField} from "./utils";
 
 export function Attribute(name: string = "", targetConstructor: (v: string) => any = v => v): Function {
     return function (target: any, propertyKey: string) {
-        Config.getInstance().putAttributeMapping(target.constructor.name, propertyKey, name === "" ? propertyKey : name, targetConstructor);
+        Config.putAttributeMapping(target.constructor.name, propertyKey, name === "" ? propertyKey : name, targetConstructor);
     }
 }
 

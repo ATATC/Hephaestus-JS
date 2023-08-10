@@ -23,7 +23,7 @@ export function parseExpr(expr: string): Component | null {
     if (Text.wrappedBy(expr, '{', '}')) {
         if (temp.tagName === "") return Text.PARSER.parse(temp.inner);
         temp.tagName = temp.tagName.replaceAll(" ", "");
-        const parser = Config.getInstance().getParser(temp.tagName);
+        const parser = Config.getParser(temp.tagName);
         const component = parser == null ? temp : parser.parse(temp.inner);
         if (component == null) return null;
         injectAttributes(component, attributesExpr);
@@ -43,7 +43,7 @@ export function parse(expr: string): Component | null {
 }
 
 export function listTagNames(): string[] {
-    return Config.getInstance().listTagNames();
+    return Config.listTagNames();
 }
 
 export function clean(expr: string): string {

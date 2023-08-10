@@ -3,7 +3,7 @@ import { Config } from "./config";
 import { forEachDeclaredField } from "./utils";
 export function Attribute(name = "", targetConstructor = v => v) {
     return function (target, propertyKey) {
-        Config.getInstance().putAttributeMapping(target.constructor.name, propertyKey, name === "" ? propertyKey : name, targetConstructor);
+        Config.putAttributeMapping(target.constructor.name, propertyKey, name === "" ? propertyKey : name, targetConstructor);
     };
 }
 export function extractAttributes(component) {

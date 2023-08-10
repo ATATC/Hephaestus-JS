@@ -1,33 +1,26 @@
 export class Config {
-    static instance = new Config();
-    static getInstance() {
-        return Config.instance;
-    }
-    parserMap = new Map();
-    attributeMappingMap = new Map();
+    static parserMap = new Map();
+    static attributeMappingMap = new Map();
     constructor() {
     }
-    getInstance() {
-        return this;
-    }
-    listTagNames() {
+    static listTagNames() {
         return Array.from(this.parserMap.keys());
     }
-    putParser(tagName, parser) {
+    static putParser(tagName, parser) {
         this.parserMap.set(tagName, parser);
     }
-    getParser(tagName) {
+    static getParser(tagName) {
         const parser = this.parserMap.get(tagName);
         return parser === undefined ? null : parser;
     }
-    putAttributeMapping(prefix, fieldName, attributeName, targetConstructor) {
+    static putAttributeMapping(prefix, fieldName, attributeName, targetConstructor) {
         this.attributeMappingMap.set(prefix + "." + fieldName, [attributeName, targetConstructor]);
     }
-    getAttributeName(prefix, fieldName) {
+    static getAttributeName(prefix, fieldName) {
         const attributeInfo = this.attributeMappingMap.get(prefix + "." + fieldName);
         return attributeInfo === undefined ? null : attributeInfo;
     }
-    getAttributes(prefix) {
+    static getAttributes(prefix) {
         const attributes = [];
         this.attributeMappingMap.forEach(([attrName, targetConstructor], index) => {
             const [pre, field] = index.split(".");

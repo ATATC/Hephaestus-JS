@@ -26,7 +26,7 @@ export function ComponentConfig(tagName) {
         constructor.prototype.config = new ComponentConfigRecord(tagName);
         if (!Reflect.has(constructor, "PARSER"))
             throw new MissingFieldException(constructor, "PARSER");
-        Config.getInstance().putParser(tagName, Reflect.get(constructor, "PARSER"));
+        Config.putParser(tagName, Reflect.get(constructor, "PARSER"));
     };
 }
 export class Component {
