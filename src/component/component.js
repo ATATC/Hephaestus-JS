@@ -251,6 +251,8 @@ export let MultiComponent = class MultiComponent extends Component {
     static { MultiComponent_1 = this; }
     static PARSER = {
         parse(expr) {
+            if (expr.length === 0)
+                return new MultiComponent_1();
             let open = expr.charAt(0);
             let [start, end] = Text.matchBrackets(expr, open, Text.pairBracket(open));
             const components = [];

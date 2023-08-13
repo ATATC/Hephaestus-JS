@@ -262,6 +262,7 @@ export class Ref extends Component {
 export class MultiComponent extends Component implements Iterable<Component> {
     public static PARSER: Parser<MultiComponent> = {
         parse(expr: string): MultiComponent {
+            if (expr.length === 0) return new MultiComponent();
             let open = expr.charAt(0);
             let [start, end] = Text.matchBrackets(expr, open, Text.pairBracket(open));
             const components = [];
